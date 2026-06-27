@@ -69,8 +69,9 @@
   .form-type-card {
     border: 2px solid var(--border); border-radius: 10px; padding: 20px;
     cursor: pointer; background: var(--white); transition: border-color 0.15s, background 0.15s;
-    text-align: left;
+    text-align: left; user-select: none;
   }
+  .form-type-card * { pointer-events: none; }
   .form-type-card:hover { border-color: var(--teal-light); background: var(--teal-faint); }
   .form-type-card.selected { border-color: var(--teal); background: var(--teal-faint); }
   .form-type-icon { font-size: 28px; margin-bottom: 10px; }
@@ -1641,5 +1642,6 @@ document.addEventListener('click', e => {
     if (e.target === el) { closeModal(id.replace('modal-','')); }
   });
 });
+</script>
 </body>
 </html>
