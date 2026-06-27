@@ -404,12 +404,173 @@
   .chip-green { background: var(--green-faint); color: var(--green); }
   .chip-amber { background: var(--amber-faint); color: var(--amber); }
   .chip-red { background: var(--red-faint); color: var(--red); }
+
+  /* THANK YOU VIEW */
+  .thankyou-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 48px 36px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  .ty-icon { font-size: 56px; margin-bottom: 20px; line-height: 1; }
+  .ty-title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.2; }
+  .ty-body { font-size: 15px; line-height: 1.7; color: var(--text-mid); margin-bottom: 28px; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .ty-instruction {
+    background: var(--teal-faint);
+    border: 1.5px solid var(--teal);
+    border-radius: 10px;
+    padding: 18px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+  }
+  .ty-instruction-icon { font-size: 24px; flex-shrink: 0; }
+  .ty-clinician-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: var(--text-light);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: border-color 0.15s, color 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ty-clinician-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+  /* PIN OVERLAY */
+  .pin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 18, 28, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .pin-overlay.visible { display: flex; }
+  .pin-modal {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 36px 32px;
+    width: 340px;
+    text-align: center;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    animation: pinSlide 0.2s ease;
+  }
+  @keyframes pinSlide { from { opacity:0; transform: scale(0.94) translateY(8px); } to { opacity:1; transform: scale(1) translateY(0); } }
+  .pin-lock-icon { font-size: 36px; margin-bottom: 12px; }
+  .pin-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .pin-sub { font-size: 13px; color: var(--text-light); margin-bottom: 24px; line-height: 1.5; }
+  .pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 8px; }
+  .pin-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .pin-dot.filled { background: var(--navy); border-color: var(--navy); }
+  .pin-dot.error { background: var(--red); border-color: var(--red); }
+  .pin-error-msg { font-size: 12px; color: var(--red); min-height: 18px; margin-bottom: 16px; font-weight: 500; }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .pin-key {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 0;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.1s, transform 0.08s;
+    user-select: none;
+  }
+  .pin-key:hover { background: var(--teal-faint); border-color: var(--teal); }
+  .pin-key:active { transform: scale(0.93); background: var(--teal); color: white; border-color: var(--teal); }
+  .pin-key.del { font-size: 16px; color: var(--text-light); }
+  .pin-cancel { font-size: 13px; color: var(--text-light); background: none; border: none; cursor: pointer; font-family: var(--sans); padding: 6px; }
+  .pin-cancel:hover { color: var(--text); }
+
+  /* CLINICIAN RESULTS — extra header bar */
+  .clinician-bar {
+    background: var(--navy);
+    border-radius: 10px 10px 0 0;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .clinician-bar-title { font-size: 13px; font-weight: 600; color: white; }
+  .clinician-bar-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .clinician-tag { background: var(--teal); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; font-family: var(--mono); letter-spacing: 0.5px; }
+  .lock-btn {
+    margin-left: auto;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--sans);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .lock-btn:hover { background: rgba(255,255,255,0.18); }
 </style>
 </head>
 <body>
 
+<!-- PIN OVERLAY -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-modal">
+    <div class="pin-lock-icon">🔐</div>
+    <div class="pin-title">Clinician Access</div>
+    <div class="pin-sub">Enter your PIN to view results and continue to the assessment system.</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+      <div class="pin-dot" id="pd4"></div>
+    </div>
+    <div class="pin-error-msg" id="pin-error"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key" style="visibility:hidden;"></button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <button class="pin-cancel" onclick="closePIN()">Cancel</button>
+  </div>
+</div>
+
 <div class="brand-bar">
-  <div class="brand-logo">Cog<span>Track</span></div>
+  <a href="index.html" style="text-decoration:none;"><div class="brand-logo">Cog<span>Track</span></div></a>
   <div class="brand-sep">|</div>
   <div class="brand-form-name">Cognitive &amp; Attention Questionnaire</div>
   <div class="brand-right">Patient Self-Report &nbsp;&middot;&nbsp; CAQ-1.0</div>
@@ -443,8 +604,34 @@
     <div id="q-card-wrap"></div>
   </div>
 
-  <!-- RESULTS VIEW -->
+  <!-- THANK YOU VIEW (patient sees this) -->
+  <div class="view" id="view-thankyou">
+    <div class="thankyou-card">
+      <div class="ty-icon">🙏</div>
+      <div class="ty-title">Thank you for completing the questionnaire</div>
+      <div class="ty-body">
+        Your answers have been saved and sent to your care team. There is nothing else you need to do right now.
+      </div>
+      <div class="ty-instruction">
+        <span class="ty-instruction-icon">🏥</span>
+        <span>Please hand the tablet back to your nurse or clinician.</span>
+      </div>
+      <button class="ty-clinician-btn" onclick="openPIN()">
+        🔐 Clinician — tap here to continue
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS VIEW (clinician sees this, behind PIN) -->
   <div class="view" id="view-results">
+    <div class="clinician-bar">
+      <span class="clinician-tag">CLINICIAN VIEW</span>
+      <div>
+        <div class="clinician-bar-title">CAQ Results — Margaret Thornton</div>
+        <div class="clinician-bar-sub">Scores not shown to patient &nbsp;·&nbsp; PIN-protected access</div>
+      </div>
+      <button class="lock-btn" onclick="lockResults()">🔒 Lock &amp; return tablet</button>
+    </div>
     <div id="results-wrap"></div>
     <div class="disclaimer">
       For demonstration purposes only. This is not a diagnostic tool. Results are for clinician review only and do not constitute a clinical diagnosis or treatment recommendation.
@@ -454,6 +641,72 @@
 </div>
 
 <script>
+// ── PIN GATE ───────────────────────────────────────────────────────────────
+const CORRECT_PIN = '12345';
+let pinEntry = '';
+let pinShakeTimer = null;
+
+function openPIN() {
+  pinEntry = '';
+  updatePinDots(false);
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.add('visible');
+}
+
+function closePIN() {
+  document.getElementById('pin-overlay').classList.remove('visible');
+  pinEntry = '';
+  updatePinDots(false);
+}
+
+function pinKey(digit) {
+  if (pinEntry.length >= 5) return;
+  pinEntry += digit;
+  updatePinDots(false);
+  document.getElementById('pin-error').textContent = '';
+  if (pinEntry.length === 5) {
+    setTimeout(checkPIN, 120);
+  }
+}
+
+function pinDel() {
+  if (pinEntry.length === 0) return;
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots(false);
+}
+
+function updatePinDots(error) {
+  for (let i = 0; i < 5; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.className = 'pin-dot';
+    if (error) { dot.classList.add('error'); }
+    else if (i < pinEntry.length) { dot.classList.add('filled'); }
+  }
+}
+
+function checkPIN() {
+  if (pinEntry === CORRECT_PIN) {
+    document.getElementById('pin-overlay').classList.remove('visible');
+    pinEntry = '';
+    updatePinDots(false);
+    showResults();
+  } else {
+    updatePinDots(true);
+    document.getElementById('pin-error').textContent = 'Incorrect PIN. Please try again.';
+    pinEntry = '';
+    setTimeout(() => { updatePinDots(false); }, 700);
+  }
+}
+
+function lockResults() {
+  answers = new Array(10).fill(null);
+  currentQ = 0;
+  showView('view-intro');
+  document.getElementById('progress-fill').style.width = '0%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── QUESTIONNAIRE ─────────────────────────────────────────────────────────
 const QUESTIONS = [
   {
     num: 1,
@@ -601,7 +854,6 @@ function renderQuestion(idx) {
             <div class="opt-letter-badge">${LETTERS[i]}</div>
             <div class="opt-text-wrap">
               <div class="opt-main">${opt}</div>
-              <div class="opt-score-hint">score: ${i}</div>
             </div>
           </button>
         `).join('')}
@@ -627,7 +879,7 @@ function selectAnswer(optIdx) {
 function nextQ() {
   if (answers[currentQ] === null) return;
   if (currentQ === 9) {
-    showResults();
+    showThankYou();
     return;
   }
   currentQ++;
@@ -641,6 +893,12 @@ function prevQ() {
   currentQ--;
   updateDots();
   renderQuestion(currentQ);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showThankYou() {
+  document.getElementById('progress-fill').style.width = '100%';
+  showView('view-thankyou');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -748,10 +1006,11 @@ function showResults() {
 
         <!-- NEXT STEPS -->
         <div class="next-section">
-          <div class="next-title">Next steps</div>
+          <div class="next-title">Clinician actions</div>
           <div class="next-row">
-            <button class="btn btn-navy" onclick="retake()">Retake questionnaire</button>
-            <button class="btn btn-ghost">Download PDF summary</button>
+            <button class="btn btn-navy" onclick="lockResults()">🔒 Lock &amp; start new patient</button>
+            <button class="btn btn-ghost">View in assessment system</button>
+            <button class="btn btn-ghost">Export PDF</button>
           </div>
         </div>
 
@@ -819,13 +1078,7 @@ function generateAISummary(score, band, baselineScore, baselineBand, delta, impr
   textEl.style.display = 'block';
 }
 
-function retake() {
-  answers = new Array(10).fill(null);
-  currentQ = 0;
-  showView('view-intro');
-  document.getElementById('progress-fill').style.width = '0%';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+
 </script>
 
 </body>
