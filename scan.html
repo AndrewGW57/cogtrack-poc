@@ -438,8 +438,8 @@
               </div>
             </div>
             <div class="action-row">
-              <button class="btn btn-primary">View Scored Results &#8594;</button>
-              <button class="btn btn-secondary">View Audit Entry</button>
+              <button class="btn btn-primary" onclick="showModal('scored-results')">View Scored Results &#8594;</button>
+              <button class="btn btn-secondary" onclick="showModal('audit-entry')">View Audit Entry</button>
               <button class="btn btn-secondary" onclick="resetAll()" style="margin-left:auto;">New scan</button>
             </div>
           </div>
@@ -451,7 +451,139 @@
   </main>
 </div>
 
-<div class="poc-disclaimer">PROOF OF CONCEPT ONLY &middot; Not a certified medical device &middot; Sample patient data &middot; AI extraction requires clinician confirmation</div>
+<style>
+  /* ── MODAL OVERLAY ─────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(7,22,48,0.82);
+    backdrop-filter: blur(3px);
+    z-index: 300;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px 40px;
+    overflow-y: auto;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 780px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+    animation: modalIn 0.2s ease;
+    flex-shrink: 0;
+  }
+  @keyframes modalIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .modal-header {
+    background: var(--navy);
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .modal-header-title { font-size: 14px; font-weight: 600; color: white; }
+  .modal-header-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-left: auto; }
+  .modal-close {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-left: 8px;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.2); }
+  .modal-body { padding: 22px; }
+  .modal-section { margin-bottom: 18px; }
+  .modal-section:last-child { margin-bottom: 0; }
+  .modal-section-title {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-light); font-family: var(--mono);
+    padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .score-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+  .score-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .score-box-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); font-family: var(--mono); margin-bottom: 5px; }
+  .score-box-value { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+  .score-box-sub { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+  .score-box.amber { border-left: 3px solid var(--amber); }
+  .score-box.amber .score-box-value { color: var(--amber); }
+  .score-box.red { border-left: 3px solid var(--red); }
+  .score-box.red .score-box-value { color: var(--red); }
+  .score-box.green { border-left: 3px solid var(--green); }
+  .score-box.green .score-box-value { color: var(--green); }
+  .score-box.teal { border-left: 3px solid var(--teal); }
+  .score-box.teal .score-box-value { color: var(--teal); }
+  .results-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .results-tbl th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); font-weight: 600; padding: 7px 10px; border-bottom: 2px solid var(--border); font-family: var(--mono); }
+  .results-tbl td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .results-tbl tr:last-child td { border-bottom: none; }
+  .results-tbl tr:hover td { background: var(--bg); }
+  .audit-log { display: flex; flex-direction: column; gap: 0; }
+  .audit-row {
+    display: grid;
+    grid-template-columns: 130px 1fr auto;
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+    font-size: 12.5px;
+  }
+  .audit-row:last-child { border-bottom: none; }
+  .audit-row:hover { background: var(--bg); }
+  .audit-ts { font-family: var(--mono); font-size: 11px; color: var(--text-light); padding-top: 1px; }
+  .audit-action { color: var(--text); }
+  .audit-action .actor { font-size: 11px; color: var(--text-light); margin-top: 2px; font-style: italic; }
+  .band-box {
+    background: var(--amber-faint); border: 1px solid var(--amber);
+    border-radius: 6px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .band-box.red-band { background: var(--red-faint); border-color: var(--red); }
+  .band-icon { font-size: 20px; }
+  .band-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+  .band-text strong { display: block; font-size: 15px; margin-bottom: 2px; }
+</style>
+
+<!-- SCORED RESULTS MODAL -->
+<div class="modal-overlay" id="modal-scored-results">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="ai-tag">SCORED</span>
+      <div class="modal-header-title" id="sr-title">Scored Results</div>
+      <div class="modal-header-sub" id="sr-sub">Extracted &amp; confirmed 01 Jun 2026 · 14:38</div>
+      <button class="modal-close" onclick="closeModal('scored-results')">✕</button>
+    </div>
+    <div class="modal-body" id="sr-body"></div>
+  </div>
+</div>
+
+<!-- AUDIT ENTRY MODAL -->
+<div class="modal-overlay" id="modal-audit-entry">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="ai-tag">AUDIT</span>
+      <div class="modal-header-title" id="ae-title">Audit Log Entry</div>
+      <div class="modal-header-sub">Immutable record · Cannot be edited</div>
+      <button class="modal-close" onclick="closeModal('audit-entry')">✕</button>
+    </div>
+    <div class="modal-body" id="ae-body"></div>
+  </div>
+</div>
+
+
 
 <script>
 // ── FORM TYPE SCHEMAS ─────────────────────────────────────────────────────
@@ -1316,6 +1448,198 @@ function resetAll() {
   setStep(1);
   window.scrollTo(0, 0);
 }
-</script>
+
+// ── MODAL DATA ─────────────────────────────────────────────────────────────
+
+const MODAL_DATA = {
+  'sage-uk': {
+    patient: 'James Whitfield', id: 'PT-2026-0041', date: '01 Jun 2026',
+    scores: [
+      { label:'Date Orientation', value:'Correct', sub:'1 / 1 pt', cls:'green' },
+      { label:'Picture Naming',   value:'2 / 2',   sub:'Both correct', cls:'green' },
+      { label:'Similarity (T3)',  value:'Correct',  sub:'Meaningful answer', cls:'green' },
+      { label:'Arithmetic (T4)',  value:'12',       sub:'Correct — 20p in £2.40', cls:'green' },
+      { label:'Arithmetic (T5)',  value:'£6.60',    sub:'Correct change', cls:'green' },
+      { label:'Animal Fluency',   value:'12 / 12',  sub:'All 12 recalled', cls:'green' },
+    ],
+    drawn: [
+      { task:'3D Figure Copy',     status:'Pending clinician score', note:'Patient copy present — evaluate 3D accuracy against reference' },
+      { task:'Clock Drawing',      status:'Pending clinician score', note:'All 12 numbers present · Hands at 11:05 · L/S labelled' },
+      { task:'Trail-Making (T10)', status:'Pending clinician score', note:'Connecting lines 1→A→2→B→3→C→4→D→5→E→6→F detected' },
+      { task:'Matchstick (T11)',   status:'Pending clinician score', note:'2×2 grid drawn in answer box — verify 4 complete squares' },
+    ],
+    memory: '"I am done" written at Task 12 — delayed memory instruction followed correctly.',
+    band: { text:'Score pending drawn task evaluation', sub:'Clinician must apply SAGE rubric to Tasks 7, 8, 10, and 11 before total score can be finalised. Written and fluency tasks all correct.', cls:'' },
+    auditRows: [
+      { ts:'01 Jun 2026  14:12', action:'SAGE Form 1 (UK) selected', actor:'Dr. S. Mehra' },
+      { ts:'01 Jun 2026  14:18', action:'Scan uploaded — image pre-processed', actor:'System' },
+      { ts:'01 Jun 2026  14:18', action:'Form structure identified — SAGE Form 1 UK · 4 pages', actor:'System' },
+      { ts:'01 Jun 2026  14:19', action:'29 fields extracted — 25 high confidence, 4 require clinician review', actor:'System (AI)' },
+      { ts:'01 Jun 2026  14:31', action:'Clock hand field reviewed and confirmed as "Incorrect"', actor:'Dr. S. Mehra' },
+      { ts:'01 Jun 2026  14:32', action:'"Kew" recall field reviewed and confirmed as "Not recalled"', actor:'Dr. S. Mehra' },
+      { ts:'01 Jun 2026  14:38', action:'Extraction confirmed — 29 fields written to patient record PT-2026-0041', actor:'Dr. S. Mehra' },
+      { ts:'01 Jun 2026  14:38', action:'Auto-scored fields calculated (date, picture naming, written responses, fluency)', actor:'System' },
+      { ts:'01 Jun 2026  14:38', action:'Drawn task scoring flagged for clinician completion — Tasks 7, 8, 10, 11', actor:'System' },
+      { ts:'01 Jun 2026  14:38', action:'Audit entry created and locked', actor:'System' },
+    ]
+  },
+  'sage-sp': {
+    patient: 'Elena Martínez', id: 'PT-2026-0038', date: '01 Jun 2026',
+    scores: [
+      { label:'Orientación temporal', value:'Correcta', sub:'1 / 1 pt', cls:'green' },
+      { label:'Nombrar imágenes',     value:'2 / 2',    sub:'Acordeón + volcán', cls:'green' },
+      { label:'Semejanza (T3)',       value:'Correcta',  sub:'Respuesta significativa', cls:'green' },
+      { label:'Aritmética (T4)',      value:'12',        sub:'Correcto — monedas de 5¢', cls:'green' },
+      { label:'Aritmética (T5)',      value:'$6.55',     sub:'Cambio correcto', cls:'green' },
+      { label:'Fluidez verbal',       value:'12 / 12',   sub:'12 animales recordados', cls:'green' },
+    ],
+    drawn: [
+      { task:'Copia figura 3D',        status:'Pendiente puntuación clínica', note:'Copia presente — evaluar precisión de figura 3D' },
+      { task:'Dibujo del reloj',       status:'Pendiente puntuación clínica', note:'12 números presentes · 11:05 · L/S etiquetados' },
+      { task:'Rastreo (T10)',          status:'Pendiente puntuación clínica', note:'Líneas 1→A→2→B→3→C→4→D→5→E→6→F detectadas' },
+      { task:'Palillos (T11)',         status:'Pendiente puntuación clínica', note:'Cuadrícula 2×2 dibujada — verificar 4 cuadrados completos' },
+    ],
+    memory: '"Terminé" escrito en Tarea 12 — instrucción de memoria diferida seguida correctamente.',
+    band: { text:'Puntuación pendiente evaluación de tareas dibujadas', sub:'El médico debe aplicar la rúbrica SAGE a las Tareas 7, 8, 10 y 11. Las tareas escritas y de fluidez son todas correctas.', cls:'' },
+    auditRows: [
+      { ts:'01 Jun 2026  14:05', action:'SAGE Formulario 1 (SP) seleccionado', actor:'Dr. S. Mehra' },
+      { ts:'01 Jun 2026  14:11', action:'Imagen cargada — preprocesamiento completado', actor:'Sistema' },
+      { ts:'01 Jun 2026  14:11', action:'Estructura identificada — SAGE Formulario 1 SP · 4 páginas', actor:'Sistema' },
+      { ts:'01 Jun 2026  14:12', action:'28 campos extraídos — 24 alta confianza, 4 requieren revisión', actor:'Sistema (IA)' },
+      { ts:'01 Jun 2026  14:22', action:'Campos revisados y confirmados por médico', actor:'Dr. S. Mehra' },
+      { ts:'01 Jun 2026  14:28', action:'Extracción confirmada — 28 campos escritos en registro PT-2026-0038', actor:'Dr. S. Mehra' },
+      { ts:'01 Jun 2026  14:28', action:'Puntuación automática: fecha, imágenes, respuestas escritas, fluidez', actor:'Sistema' },
+      { ts:'01 Jun 2026  14:28', action:'Tareas dibujadas marcadas pendiente — Tareas 7, 8, 10, 11', actor:'Sistema' },
+      { ts:'01 Jun 2026  14:28', action:'Registro de auditoría creado y bloqueado', actor:'Sistema' },
+    ]
+  },
+  'gpcog': {
+    patient: 'Margaret Thornton', id: 'PT-2024-0183', date: '15 Jul 2026',
+    scores: [
+      { label:'GPCOG Part 1',      value:'7 / 9',  sub:'Follow-up 1 · 15 Jul 2026', cls:'amber' },
+      { label:'Baseline (Part 1)', value:'5 / 9',  sub:'01 Jun 2026', cls:'amber' },
+      { label:'Delta',             value:'+2 pts', sub:'Improvement from baseline', cls:'green' },
+    ],
+    drawn: [
+      { task:'Clock — numbers', status:'Correct (confirmed)', note:'All 12 numbers in approximately correct positions' },
+      { task:'Clock — hands',   status:'Incorrect (confirmed)', note:'Hands not at 10 past 11 — clinician confirmed after flag' },
+    ],
+    memory: null,
+    band: { text:'More information required — score 5–8 range', sub:'GPCOG Part 2 informant interview recommended. Both visits remain within the review threshold. Improvement from baseline noted.', cls:'' },
+    auditRows: [
+      { ts:'15 Jul 2026  14:02', action:'GPCOG Part 1 selected', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:18', action:'Scan uploaded and pre-processed', actor:'System' },
+      { ts:'15 Jul 2026  14:18', action:'GPCOG Part 1 form structure identified', actor:'System' },
+      { ts:'15 Jul 2026  14:19', action:'15 fields extracted — 13 high confidence, 2 flagged for review', actor:'System (AI)' },
+      { ts:'15 Jul 2026  14:24', action:'Q2c clock hands — confirmed "Incorrect" by clinician', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:25', action:'Q4e "Kew" — confirmed "Not recalled" by clinician', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:25', action:'Extraction confirmed — 15 fields written to patient record PT-2024-0183', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:25', action:'GPCOG Part 1 auto-scored: 7 / 9', actor:'System' },
+      { ts:'15 Jul 2026  14:25', action:'Delta calculated vs baseline (5/9): +2 points', actor:'System' },
+      { ts:'15 Jul 2026  14:25', action:'Referral flag raised: GPCOG Part 2 not repeated at this visit', actor:'System' },
+      { ts:'15 Jul 2026  14:25', action:'Audit entry created and locked', actor:'System' },
+    ]
+  },
+  'caq': {
+    patient: 'Margaret Thornton', id: 'PT-2024-0183', date: '15 Jul 2026',
+    scores: [
+      { label:'CAQ Total',      value:'22 / 30', sub:'Follow-up 1 · 15 Jul 2026', cls:'red' },
+      { label:'Baseline',       value:'21 / 30', sub:'01 Jun 2026', cls:'red' },
+      { label:'Delta',          value:'+1 pt',   sub:'Marginal increase', cls:'amber' },
+    ],
+    drawn: [],
+    memory: null,
+    band: { text:'High difficulty — clinician review recommended', sub:'Score 22 falls in the 18–30 band. Both visits remain within the high difficulty range. Review recommended before next treatment session.', cls:'red-band' },
+    auditRows: [
+      { ts:'15 Jul 2026  14:30', action:'CAQ-1.0 selected', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:35', action:'Scan uploaded and pre-processed', actor:'System' },
+      { ts:'15 Jul 2026  14:35', action:'CAQ-1.0 form structure identified — 10-question layout', actor:'System' },
+      { ts:'15 Jul 2026  14:35', action:'15 fields extracted — all high confidence, no flags raised', actor:'System (AI)' },
+      { ts:'15 Jul 2026  14:36', action:'All 10 A–D responses mapped to 0–3 score values', actor:'System' },
+      { ts:'15 Jul 2026  14:36', action:'Handwritten total (22/30) matches auto-calculated score — cross-check passed', actor:'System' },
+      { ts:'15 Jul 2026  14:38', action:'Extraction confirmed — 15 fields written to patient record PT-2024-0183', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:38', action:'CAQ total auto-scored: 22 / 30 — High difficulty band', actor:'System' },
+      { ts:'15 Jul 2026  14:38', action:'Delta calculated vs baseline (21/30): +1 point', actor:'System' },
+      { ts:'15 Jul 2026  14:38', action:'Audit entry created and locked', actor:'System' },
+    ]
+  }
+};
+
+function showModal(type) {
+  const ft = FORM_TYPES[selectedType];
+  const md = MODAL_DATA[selectedType];
+  if (!md) return;
+
+  if (type === 'scored-results') {
+    document.getElementById('sr-title').textContent = 'Scored Results — ' + md.patient;
+    document.getElementById('sr-sub').textContent = ft.code + ' · ' + md.date + ' · ' + md.id;
+    let html = '';
+    html += '<div class="modal-section"><div class="modal-section-title">Score Summary</div><div class="score-grid">';
+    md.scores.forEach(s => {
+      html += `<div class="score-box ${s.cls}"><div class="score-box-label">${s.label}</div><div class="score-box-value">${s.value}</div><div class="score-box-sub">${s.sub}</div></div>`;
+    });
+    html += '</div></div>';
+    html += `<div class="modal-section"><div class="modal-section-title">Classification</div>
+      <div class="band-box ${md.band.cls}">
+        <div class="band-icon">⚠️</div>
+        <div class="band-text"><strong>${md.band.text}</strong>${md.band.sub}</div>
+      </div></div>`;
+    if (md.drawn.length > 0) {
+      html += '<div class="modal-section"><div class="modal-section-title">Drawn Tasks — Clinician Review Required</div>';
+      html += '<table class="results-tbl"><thead><tr><th>Task</th><th>Status</th><th>Note</th></tr></thead><tbody>';
+      md.drawn.forEach(dr => {
+        const isPending = dr.status.toLowerCase().includes('pending') || dr.status.toLowerCase().includes('pendiente');
+        html += `<tr><td><strong>${dr.task}</strong></td>
+          <td><span class="chip ${isPending ? 'chip-amber' : 'chip-green'}">${dr.status}</span></td>
+          <td style="font-size:11px;color:var(--text-light);">${dr.note}</td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+    if (md.memory) {
+      html += `<div class="modal-section"><div class="modal-section-title">Delayed Memory Check</div>
+        <div style="font-size:13px;color:var(--text-mid);background:var(--green-faint);border:1px solid var(--green);border-radius:6px;padding:10px 14px;">✓ &nbsp;${md.memory}</div></div>`;
+    }
+    document.getElementById('sr-body').innerHTML = html;
+    document.getElementById('modal-scored-results').classList.add('visible');
+
+  } else {
+    document.getElementById('ae-title').textContent = 'Audit Log — ' + md.patient + ' · ' + ft.code;
+    let html = '';
+    html += `<div class="modal-section"><div class="modal-section-title">Entry Summary</div>
+      <div class="score-grid">
+        <div class="score-box teal"><div class="score-box-label">Patient</div><div class="score-box-value" style="font-size:14px;line-height:1.2;">${md.patient}</div><div class="score-box-sub">${md.id}</div></div>
+        <div class="score-box teal"><div class="score-box-label">Form</div><div class="score-box-value" style="font-size:16px;">${ft.code}</div><div class="score-box-sub">${md.date}</div></div>
+        <div class="score-box green"><div class="score-box-label">Status</div><div class="score-box-value" style="font-size:16px;">Confirmed</div><div class="score-box-sub">Locked · Cannot be edited</div></div>
+      </div></div>`;
+    html += '<div class="modal-section"><div class="modal-section-title">Activity Log</div><div class="audit-log">';
+    md.auditRows.forEach(row => {
+      const isSystem = ['System','System (AI)','Sistema','Sistema (IA)'].includes(row.actor);
+      html += `<div class="audit-row">
+        <div class="audit-ts">${row.ts}</div>
+        <div class="audit-action">${row.action}<div class="actor">${row.actor}</div></div>
+        <div><span class="chip ${isSystem ? 'chip-teal' : 'chip-green'}" style="white-space:nowrap;">${isSystem ? 'System' : 'Clinician'}</span></div>
+      </div>`;
+    });
+    html += '</div></div>';
+    html += `<div style="font-size:11px;color:var(--text-light);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-top:4px;">
+      🔒 &nbsp;This audit entry is immutable. All extraction timestamps, confidence scores, field values, and clinician confirmation actions are stored permanently. In a production system this record would be cryptographically signed.
+    </div>`;
+    document.getElementById('ae-body').innerHTML = html;
+    document.getElementById('modal-audit-entry').classList.add('visible');
+  }
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(type) {
+  document.getElementById('modal-' + type).classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('click', e => {
+  ['modal-scored-results','modal-audit-entry'].forEach(id => {
+    const el = document.getElementById(id);
+    if (e.target === el) { closeModal(id.replace('modal-','')); }
+  });
+});
 </body>
 </html>
