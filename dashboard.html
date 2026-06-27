@@ -1274,10 +1274,10 @@
       <div class="savings-banner">
         <div class="savings-icon">⏱️</div>
         <div class="savings-text">
-          <strong>Estimated time saved this patient episode</strong><br>
-          Manual scoring, collation, and comparison typically takes 18–25 minutes per visit pair. This was generated automatically.
+          <strong>Minimum estimated time saved this patient episode</strong><br>
+          Manual scoring, collation, and comparison across a full assessment programme typically takes 75+ minutes per visit pair. This was generated automatically. We believe this is a conservative estimate.
         </div>
-        <div class="savings-detail">~22 min</div>
+        <div class="savings-detail">75+ min</div>
       </div>
 
       <div class="form-card">
@@ -1476,45 +1476,45 @@
               <td><strong>GPCOG Part 1 scoring</strong></td>
               <td style="color: var(--text-light);">Manual count, lookup scoring guide</td>
               <td><span class="chip green">Automatic on submit</span></td>
-              <td style="font-family: var(--mono); color: var(--green);">3 min</td>
+              <td style="font-family: var(--mono); color: var(--green);">~5 min</td>
             </tr>
             <tr>
               <td><strong>GPCOG Part 2 scoring</strong></td>
-              <td style="color: var(--text-light);">Manual count, threshold check</td>
+              <td style="color: var(--text-light);">Manual count, threshold check, informant collation</td>
               <td><span class="chip green">Automatic on submit</span></td>
-              <td style="font-family: var(--mono); color: var(--green);">2 min</td>
+              <td style="font-family: var(--mono); color: var(--green);">~5 min</td>
             </tr>
             <tr>
-              <td><strong>Spreadsheet entry</strong></td>
-              <td style="color: var(--text-light);">Manual re-entry into tracking spreadsheet</td>
-              <td><span class="chip green">No re-entry required</span></td>
-              <td style="font-family: var(--mono); color: var(--green);">5 min</td>
+              <td><strong>Photo to record transcription</strong></td>
+              <td style="color: var(--text-light);">Manual re-entry across multiple forms — error-prone</td>
+              <td><span class="chip green">OCR extraction + confirm</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">~10 min</td>
             </tr>
             <tr>
               <td><strong>Baseline vs follow-up comparison</strong></td>
-              <td style="color: var(--text-light);">Manual lookup of prior record, delta calculated by hand</td>
+              <td style="color: var(--text-light);">Pull prior records, calculate deltas, check thresholds across all tests</td>
               <td><span class="chip green">Auto-generated delta table</span></td>
-              <td style="font-family: var(--mono); color: var(--green);">6 min</td>
+              <td style="font-family: var(--mono); color: var(--green);">~15 min</td>
             </tr>
             <tr>
               <td><strong>Assessment note drafting</strong></td>
-              <td style="color: var(--text-light);">Clinician types narrative from raw scores</td>
+              <td style="color: var(--text-light);">Clinician writes full narrative from raw scores across multiple assessments</td>
               <td><span class="chip green">AI draft for clinician review</span></td>
-              <td style="font-family: var(--mono); color: var(--green);">12 min</td>
+              <td style="font-family: var(--mono); color: var(--green);">~25 min</td>
             </tr>
             <tr>
               <td><strong>Flag / referral check</strong></td>
-              <td style="color: var(--text-light);">Clinician reviews thresholds manually</td>
+              <td style="color: var(--text-light);">Clinician manually reviews all thresholds across each test</td>
               <td><span class="chip green">Rules-based auto-flags</span></td>
-              <td style="font-family: var(--mono); color: var(--green);">4 min</td>
+              <td style="font-family: var(--mono); color: var(--green);">~5 min</td>
             </tr>
           </tbody>
         </table>
         <div style="padding: 16px 0 4px; border-top: 2px solid var(--border); margin-top: 16px; display: flex; align-items: center; gap: 12px;">
-          <div style="font-size: 13px; font-weight: 600; color: var(--text-mid);">Total estimated time saved per visit pair</div>
-          <div style="font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--green); margin-left: auto;">~32 min</div>
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-mid);">Minimum estimated time saved per visit pair</div>
+          <div style="font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--green); margin-left: auto;">75+ min</div>
         </div>
-        <div style="font-size: 12px; color: var(--text-light); margin-top: 4px; text-align: right;">At 10 patients/week, this is approximately 5+ hours of staff time recovered weekly</div>
+        <div style="font-size: 12px; color: var(--text-light); margin-top: 4px; text-align: right;">At 20+ patients/week, this is 40+ hours of clinical staff time recovered — and we believe these are conservative estimates</div>
       </div>
 
       <div class="form-card">
