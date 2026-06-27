@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogTrack — Cognitive Assessment Workflow POC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1C2B3A;
+    --navy-light: #2A3F54;
+    --teal: #2A8C8C;
+    --teal-light: #3AACAC;
+    --teal-faint: #E8F5F5;
+    --amber: #E8A020;
+    --amber-faint: #FEF6E7;
+    --red: #C0392B;
+    --red-faint: #FDECEA;
+    --green: #27AE60;
+    --green-faint: #E9F7EF;
+    --bg: #F7F9FB;
+    --white: #FFFFFF;
+    --border: #DDE3EA;
+    --text: #1C2B3A;
+    --text-mid: #4A5D6E;
+    --text-light: #7A8D9A;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --sidebar-w: 220px;
+    --header-h: 60px;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--header-h);
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    z-index: 100;
+    border-bottom: 2px solid var(--teal);
+  }
+  .header-logo {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  .header-logo span { color: var(--teal-light); }
+  .header-tagline {
+    font-size: 12px;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-left: 1px solid var(--navy-light);
+    padding-left: 16px;
+  }
+  .header-patient {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .patient-badge {
+    background: var(--navy-light);
+    border: 1px solid var(--teal);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 13px;
+    color: var(--white);
+  }
+  .patient-badge .label { color: var(--text-light); font-size: 11px; margin-bottom: 1px; }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    padding-top: var(--header-h);
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    width: var(--sidebar-w);
+    bottom: 0;
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    z-index: 90;
+  }
+  .sidebar-section { padding: 0 16px; margin-bottom: 8px; }
+  .sidebar-section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-light);
+    font-weight: 600;
+    padding: 12px 8px 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--text-mid);
+    font-weight: 400;
+    transition: background 0.15s, color 0.15s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: var(--teal-faint); color: var(--teal); font-weight: 600; }
+  .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-item .nav-badge {
+    margin-left: auto;
+    background: var(--amber);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-family: var(--mono);
+  }
+  .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 8px 16px; }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .clinician-name { font-size: 12px; color: var(--text-mid); font-weight: 500; }
+  .clinician-role { font-size: 11px; color: var(--text-light); }
+
+  /* MAIN */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 28px 32px;
+    max-width: 1100px;
+  }
+
+  /* SCREEN (hide/show) */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* PAGE TITLE */
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 24px;
+  }
+
+  /* PATIENT CARD */
+  .patient-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px 32px;
+    align-items: start;
+    margin-bottom: 24px;
+  }
+  .patient-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+  }
+  .patient-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px 24px;
+  }
+  .patient-field .field-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .patient-field .field-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .patient-field .field-value.mono { font-family: var(--mono); font-size: 13px; }
+
+  /* METRIC CARDS */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .metric-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .metric-card .mc-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .metric-card .mc-value {
+    font-family: var(--mono);
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+  }
+  .metric-card .mc-sub {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+  .metric-card.amber { border-left: 3px solid var(--amber); }
+  .metric-card.green { border-left: 3px solid var(--green); }
+  .metric-card.red { border-left: 3px solid var(--red); }
+  .metric-card.teal { border-left: 3px solid var(--teal); }
+  .metric-card.amber .mc-value { color: var(--amber); }
+  .metric-card.green .mc-value { color: var(--green); }
+  .metric-card.red .mc-value { color: var(--red); }
+  .metric-card.teal .mc-value { color: var(--teal); }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .form-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .form-card-desc {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-mid);
+    letter-spacing: 0.3px;
+  }
+  .form-input, .form-select, .form-textarea {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--teal);
+    background: var(--white);
+  }
+  .form-textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+
+  /* RADIO GROUP */
+  .radio-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .radio-btn {
+    padding: 7px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-mid);
+    background: var(--bg);
+    transition: all 0.12s;
+    user-select: none;
+  }
+  .radio-btn.selected {
+    background: var(--teal-faint);
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+  .radio-btn.selected-no {
+    background: var(--red-faint);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 16px;
+  }
+  .section-divider-line { flex: 1; height: 1px; background: var(--border); }
+  .section-divider-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-light);
+    font-weight: 600;
+  }
+
+  /* SCORE BADGE */
+  .score-badge {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    background: var(--teal-faint);
+    border: 1px solid var(--teal);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--teal);
+  }
+  .score-badge .score-max { font-size: 12px; color: var(--text-light); font-weight: 400; }
+  .score-badge.amber { background: var(--amber-faint); border-color: var(--amber); color: var(--amber); }
+  .score-badge.red { background: var(--red-faint); border-color: var(--red); color: var(--red); }
+  .score-badge.green { background: var(--green-faint); border-color: var(--green); color: var(--green); }
+
+  /* RESULTS TABLE */
+  .results-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .results-table th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-light);
+    font-weight: 600;
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .results-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .results-table tr:last-child td { border-bottom: none; }
+  .results-table tr:hover td { background: var(--bg); }
+
+  /* DELTA PILL */
+  .delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 2px 8px;
+  }
+  .delta.pos { background: var(--green-faint); color: var(--green); }
+  .delta.neg { background: var(--red-faint); color: var(--red); }
+  .delta.neu { background: var(--bg); color: var(--text-light); }
+
+  /* STATUS CHIP */
+  .chip {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 3px 10px;
+    letter-spacing: 0.3px;
+  }
+  .chip.amber { background: var(--amber-faint); color: var(--amber); }
+  .chip.green { background: var(--green-faint); color: var(--green); }
+  .chip.red { background: var(--red-faint); color: var(--red); }
+  .chip.teal { background: var(--teal-faint); color: var(--teal); }
+
+  /* PIPELINE BANNER */
+  .pipeline-banner {
+    background: var(--navy);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+  }
+  .pipe-step {
+    flex: 1;
+    text-align: center;
+    color: var(--white);
+    position: relative;
+  }
+  .pipe-step + .pipe-step::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-top: 28px solid transparent;
+    border-bottom: 28px solid transparent;
+    border-left: 16px solid var(--navy);
+    z-index: 2;
+  }
+  .pipe-step-inner {
+    padding: 8px 12px;
+    background: var(--navy-light);
+    border-radius: 4px;
+    margin: 0 8px;
+  }
+  .pipe-step-icon { font-size: 20px; margin-bottom: 4px; }
+  .pipe-step-label { font-size: 11px; color: var(--teal-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pipe-step-desc { font-size: 12px; color: #8AABB8; margin-top: 2px; }
+  .pipe-step.highlight .pipe-step-inner {
+    background: var(--teal);
+  }
+  .pipe-step.highlight .pipe-step-label { color: var(--white); }
+  .pipe-step.highlight .pipe-step-desc { color: rgba(255,255,255,0.7); }
+
+  /* AI REPORT */
+  .ai-report {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .ai-report-header {
+    background: var(--navy);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ai-report-header-title { font-size: 14px; font-weight: 600; color: var(--white); }
+  .ai-report-header-sub { font-size: 12px; color: var(--text-light); margin-left: auto; }
+  .ai-tag {
+    background: var(--teal);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    font-family: var(--mono);
+  }
+  .ai-report-body { padding: 20px; }
+  .ai-report-section { margin-bottom: 16px; }
+  .ai-report-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ai-report-text {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  .ai-report-edit {
+    border: 1.5px dashed var(--teal);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13.5px;
+    font-family: var(--sans);
+    color: var(--text);
+    background: var(--teal-faint);
+    min-height: 80px;
+    width: 100%;
+    resize: vertical;
+    outline: none;
+    line-height: 1.65;
+  }
+  .clinician-note-label {
+    font-size: 11px;
+    color: var(--teal);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+
+  /* TIME SAVINGS */
+  .savings-banner {
+    background: var(--green-faint);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .savings-icon { font-size: 24px; }
+  .savings-text { font-size: 13px; color: var(--green); line-height: 1.5; }
+  .savings-text strong { font-weight: 700; font-size: 15px; }
+  .savings-detail { margin-left: auto; font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--green); }
+
+  /* ACTION BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s, transform 0.1s;
+    font-family: var(--sans);
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--teal); color: var(--white); }
+  .btn-secondary { background: var(--white); color: var(--text); border: 1.5px solid var(--border); }
+  .btn-navy { background: var(--navy); color: var(--white); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .action-row { display: flex; align-items: center; gap: 10px; margin-top: 20px; }
+  .action-row .btn-right { margin-left: auto; }
+
+  /* ALERT BOX */
+  .alert-box {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert-box.amber { background: var(--amber-faint); border: 1px solid var(--amber); color: #7A5000; }
+  .alert-box.green { background: var(--green-faint); border: 1px solid var(--green); color: #145A32; }
+  .alert-box.red { background: var(--red-faint); border: 1px solid var(--red); color: #7B241C; }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* TABS */
+  .tab-row {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+    gap: 0;
+  }
+  .tab {
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .tab.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 700; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 3px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  /* VISIT TIMELINE */
+  .visit-timeline {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .visit-timeline::before {
+    content: '';
+    position: absolute;
+    top: 20px; left: 30px; right: 30px;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .visit-node {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+  }
+  .visit-dot {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .visit-dot.done { border-color: var(--teal); background: var(--teal-faint); }
+  .visit-dot.active { border-color: var(--navy); background: var(--navy); color: white; font-size: 13px; font-weight: 700; font-family: var(--mono); }
+  .visit-dot.upcoming { border-color: var(--border); color: var(--text-light); }
+  .visit-label { font-size: 12px; font-weight: 600; color: var(--text-mid); text-align: center; }
+  .visit-date { font-size: 11px; color: var(--text-light); font-family: var(--mono); }
+
+  /* POC DISCLAIMER */
+  .poc-disclaimer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.4);
+    font-size: 11px;
+    text-align: center;
+    padding: 8px;
+    letter-spacing: 0.3px;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+  }
+
+  /* GPCOG TASK */
+  .task-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .task-number {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .task-instruction {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .task-note {
+    font-size: 12px;
+    color: var(--text-light);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  /* CLOCK DRAWING */
+  .clock-visual {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 8px;
+  }
+  .clock-circle {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    font-size: 10px;
+    color: var(--text-light);
+    position: relative;
+  }
+  .clock-circle svg { width: 80px; height: 80px; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">Cog<span>Track</span></div>
+  <div class="header-tagline">Cognitive Assessment Workflow</div>
+  <div class="header-patient">
+    <div class="patient-badge">
+      <div class="label">Active Patient</div>
+      Margaret Thornton &middot; ID #PT-2024-0183
+    </div>
+    <div class="status-dot"></div>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Assessment</div>
+      <button class="nav-item active" onclick="showScreen('intake')">
+        <span class="nav-icon">👤</span> Patient Intake
+      </button>
+      <button class="nav-item" onclick="showScreen('baseline')">
+        <span class="nav-icon">📋</span> Baseline Entry
+      </button>
+      <button class="nav-item" onclick="showScreen('followup')">
+        <span class="nav-icon">📅</span> Follow-up Entry
+      </button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analysis</div>
+      <button class="nav-item" onclick="showScreen('results')">
+        <span class="nav-icon">📊</span> Scored Results
+      </button>
+      <button class="nav-item" onclick="showScreen('delta')">
+        <span class="nav-icon">📈</span> Progress View
+        <span class="nav-badge">NEW</span>
+      </button>
+      <button class="nav-item" onclick="showScreen('report')">
+        <span class="nav-icon">🤖</span> AI Assessment Note
+      </button>
+    </div>
+    <hr class="sidebar-divider">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Records</div>
+      <button class="nav-item" onclick="showScreen('audit')">
+        <span class="nav-icon">🗃️</span> Audit Trail
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div class="clinician-name">Dr. Sarah Mehra</div>
+      <div class="clinician-role">Cognitive Health Lead</div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- SCREEN 1: PATIENT INTAKE -->
+    <div class="screen active" id="screen-intake">
+      <div class="page-title">Patient Intake</div>
+      <div class="page-subtitle">Review and confirm patient profile before beginning assessment</div>
+
+      <div class="patient-card">
+        <div class="patient-avatar">MT</div>
+        <div class="patient-info-grid">
+          <div class="patient-field">
+            <div class="field-label">Full Name</div>
+            <div class="field-value">Margaret Thornton</div>
+          </div>
+          <div class="patient-field">
+            <div class="field-label">Date of Birth</div>
+            <div class="field-value mono">14 Mar 1952 (74 yrs)</div>
+          </div>
+          <div class="patient-field">
+            <div class="field-label">Patient ID</div>
+            <div class="field-value mono">#PT-2024-0183</div>
+          </div>
+          <div class="patient-field">
+            <div class="field-label">Primary Referral</div>
+            <div class="field-value">GP — Dr. A. Okafor</div>
+          </div>
+          <div class="patient-field">
+            <div class="field-label">HBOT Program</div>
+            <div class="field-value">Block 3 — 40 sessions</div>
+          </div>
+          <div class="patient-field">
+            <div class="field-label">Diagnosis Context</div>
+            <div class="field-value">Long COVID, cognitive fatigue</div>
+          </div>
+          <div class="patient-field">
+            <div class="field-label">Current Session</div>
+            <div class="field-value mono">Session 22 / 40</div>
+          </div>
+          <div class="patient-field">
+            <div class="field-label">Informant Available</div>
+            <div class="field-value">Yes — David Thornton (spouse)</div>
+          </div>
+        </div>
+        <div>
+          <span class="chip teal">Active</span>
+        </div>
+      </div>
+
+      <div class="visit-timeline">
+        <div class="visit-node">
+          <div class="visit-dot done">✓</div>
+          <div class="visit-label">Baseline</div>
+          <div class="visit-date">01 Jun 2026</div>
+        </div>
+        <div class="visit-node">
+          <div class="visit-dot active">2</div>
+          <div class="visit-label">Follow-up #1</div>
+          <div class="visit-date">15 Jul 2026</div>
+        </div>
+        <div class="visit-node">
+          <div class="visit-dot upcoming">3</div>
+          <div class="visit-label">Follow-up #2</div>
+          <div class="visit-date">Scheduled</div>
+        </div>
+        <div class="visit-node">
+          <div class="visit-dot upcoming">4</div>
+          <div class="visit-label">Discharge Review</div>
+          <div class="visit-date">TBD</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">Assessment Indication</div>
+        <div class="form-card-desc">Select the primary indication for this cognitive screening episode</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <div class="form-label">Primary Indication</div>
+            <select class="form-select">
+              <option>Routine pre/post HBOT cognitive screen</option>
+              <option>Family concern regarding memory</option>
+              <option>GP referral — new symptoms</option>
+              <option>Monitoring known mild cognitive impairment</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Assessment Battery</div>
+            <select class="form-select">
+              <option>GPCOG (Part 1 + Part 2 Informant)</option>
+              <option>GPCOG Part 1 only</option>
+              <option>Mini-Cog</option>
+              <option>GPCOG + Mini-Cog (combined)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Administering Clinician</div>
+            <select class="form-select">
+              <option>Dr. Sarah Mehra</option>
+              <option>Dr. James Lowry</option>
+              <option>Nurse Practitioner R. Santos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Assessment Date</div>
+            <input type="date" class="form-input" value="2026-07-15">
+          </div>
+          <div class="form-group full">
+            <div class="form-label">Relevant clinical notes for this session</div>
+            <textarea class="form-textarea">Patient reports improvement in word-finding difficulties since last visit. Fatigue levels self-rated 4/10 (was 7/10 at baseline). Spouse notes she is reading again and following conversations more easily.</textarea>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn-secondary">Save Draft</button>
+          <button class="btn btn-primary btn-right" onclick="showScreen('baseline')">Begin Assessment &#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: BASELINE ENTRY -->
+    <div class="screen" id="screen-baseline">
+      <div class="page-title">Baseline Assessment Entry</div>
+      <div class="page-subtitle">GPCOG Part 1 — Patient examination &middot; Administered 01 Jun 2026</div>
+
+      <div class="alert-box amber">
+        <span class="alert-icon">⚠️</span>
+        <span>This screen shows the <strong>baseline visit data already entered</strong>. It is read-only to demonstrate the captured record. Use the Follow-up Entry screen to enter new visit data.</span>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">GPCOG Part 1 — Patient Tasks (Max Score: 9)</div>
+        <div class="form-card-desc">Each correct response scores 1 point. Items marked "not attempted" score 0.</div>
+
+        <div class="task-box">
+          <div class="task-number">Task 1 &middot; Time Orientation</div>
+          <div class="task-instruction">Ask the patient: "What is today's date?" (exact date not required — year, month, and approximate date)</div>
+          <div class="radio-group">
+            <div class="radio-btn selected">&#10003; Correct — 1pt</div>
+            <div class="radio-btn">Incorrect — 0pt</div>
+            <div class="radio-btn">Not attempted</div>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 2 &middot; Clock Drawing — Numbers</div>
+          <div class="task-instruction">Ask the patient to draw a clock face with all numbers correctly placed</div>
+          <div class="task-note">Score 1 if all numbers are present and in approximately correct positions</div>
+          <div class="clock-visual">
+            <div class="clock-circle">
+              <svg viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="36" fill="white" stroke="#DDE3EA" stroke-width="2"/>
+                <text x="40" y="14" text-anchor="middle" font-size="8" fill="#C0392B">12</text>
+                <text x="14" y="44" text-anchor="middle" font-size="8" fill="#C0392B">9</text>
+                <text x="66" y="44" text-anchor="middle" font-size="8" fill="#C0392B">3</text>
+                <text x="40" y="70" text-anchor="middle" font-size="8" fill="#C0392B">6</text>
+                <text x="36" y="36" text-anchor="middle" font-size="6" fill="#AAA">baseline</text>
+                <text x="36" y="46" text-anchor="middle" font-size="6" fill="#AAA">partial</text>
+              </svg>
+            </div>
+            <div style="font-size: 12px; color: var(--text-light); line-height: 1.6;">
+              Baseline: Numbers partially placed.<br>Only 12, 3, 6, 9 drawn. 1, 2, 4, 5, 7, 8, 10, 11 absent.
+            </div>
+          </div>
+          <div class="radio-group" style="margin-top: 10px;">
+            <div class="radio-btn">&#10003; Correct — 1pt</div>
+            <div class="radio-btn selected-no">&#10007; Incorrect — 0pt</div>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 3 &middot; Clock Drawing — Hands</div>
+          <div class="task-instruction">Score 1 if clock hands are correctly placed to show 10 minutes past 11</div>
+          <div class="radio-group">
+            <div class="radio-btn">&#10003; Correct — 1pt</div>
+            <div class="radio-btn selected-no">&#10007; Incorrect — 0pt</div>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 4 &middot; Name and Address Learning</div>
+          <div class="task-instruction">Read aloud and ask patient to repeat: "John Brown, 42 West Street, Kew"</div>
+          <div class="task-note">Allow up to 4 attempts. Record the result after final recall trial.</div>
+          <div class="form-group" style="margin-top: 8px; max-width: 300px;">
+            <div class="form-label">Items recalled correctly (0–5)</div>
+            <select class="form-select">
+              <option>3 of 5 items</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 5 &middot; Recent News Item</div>
+          <div class="task-instruction">Ask the patient to describe something that has been in the news lately</div>
+          <div class="task-note">Accept any recent factual event. Score 0 only if patient cannot recall any news event at all.</div>
+          <div class="radio-group">
+            <div class="radio-btn selected">&#10003; Correct — 1pt</div>
+            <div class="radio-btn">Incorrect — 0pt</div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <div class="section-divider-label">Baseline Score</div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px; padding: 12px 0;">
+          <div class="score-badge amber">5 <span class="score-max">/ 9</span></div>
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--amber);">More information required</div>
+            <div style="font-size: 12px; color: var(--text-light);">GPCOG Part 2 informant interview recommended</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="showScreen('intake')">&#8592; Back</button>
+        <button class="btn btn-primary btn-right" onclick="showScreen('followup')">View Follow-up Entry &#8594;</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: FOLLOW-UP ENTRY -->
+    <div class="screen" id="screen-followup">
+      <div class="page-title">Follow-up Assessment Entry</div>
+      <div class="page-subtitle">GPCOG Part 1 — Patient examination &middot; Visit date: 15 Jul 2026</div>
+
+      <div class="alert-box green">
+        <span class="alert-icon">ℹ️</span>
+        <span>Enter the patient's responses below. Scores calculate automatically on submission. No manual scoring required.</span>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">GPCOG Part 1 — Follow-up Tasks (Max Score: 9)</div>
+
+        <div class="task-box">
+          <div class="task-number">Task 1 &middot; Time Orientation</div>
+          <div class="task-instruction">What is today's date?</div>
+          <div class="radio-group">
+            <div class="radio-btn selected" onclick="selectBtn(this, 'fu-t1')">&#10003; Correct — 1pt</div>
+            <div class="radio-btn" onclick="selectBtn(this, 'fu-t1')">Incorrect — 0pt</div>
+            <div class="radio-btn" onclick="selectBtn(this, 'fu-t1')">Not attempted</div>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 2 &middot; Clock Drawing — Numbers</div>
+          <div class="task-instruction">Draw a clock face with all numbers</div>
+          <div class="clock-visual">
+            <div class="clock-circle">
+              <svg viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="36" fill="white" stroke="#DDE3EA" stroke-width="2"/>
+                <text x="40" y="14" text-anchor="middle" font-size="8" fill="#2A8C8C">12</text>
+                <text x="14" y="44" text-anchor="middle" font-size="8" fill="#2A8C8C">9</text>
+                <text x="66" y="44" text-anchor="middle" font-size="8" fill="#2A8C8C">3</text>
+                <text x="40" y="70" text-anchor="middle" font-size="8" fill="#2A8C8C">6</text>
+                <text x="23" y="22" text-anchor="middle" font-size="7" fill="#2A8C8C">10</text>
+                <text x="57" y="22" text-anchor="middle" font-size="7" fill="#2A8C8C">2</text>
+                <text x="23" y="60" text-anchor="middle" font-size="7" fill="#2A8C8C">7</text>
+                <text x="57" y="60" text-anchor="middle" font-size="7" fill="#2A8C8C">5</text>
+                <text x="36" y="36" text-anchor="middle" font-size="6" fill="#AAA">follow-up</text>
+                <text x="36" y="46" text-anchor="middle" font-size="6" fill="#AAA">improved</text>
+              </svg>
+            </div>
+            <div style="font-size: 12px; color: var(--text-light); line-height: 1.6;">
+              Follow-up: All 12 numbers present<br>and in approximately correct positions.
+            </div>
+          </div>
+          <div class="radio-group" style="margin-top: 10px;">
+            <div class="radio-btn selected" onclick="selectBtn(this, 'fu-t2')">&#10003; Correct — 1pt</div>
+            <div class="radio-btn" onclick="selectBtn(this, 'fu-t2')">Incorrect — 0pt</div>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 3 &middot; Clock Drawing — Hands</div>
+          <div class="task-instruction">Hands set to 10 past 11?</div>
+          <div class="radio-group">
+            <div class="radio-btn" onclick="selectBtn(this, 'fu-t3')">&#10003; Correct — 1pt</div>
+            <div class="radio-btn selected-no" onclick="selectBtn(this, 'fu-t3')">&#10007; Incorrect — 0pt</div>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 4 &middot; Name and Address Recall</div>
+          <div class="task-instruction">Recall trial: "John Brown, 42 West Street, Kew"</div>
+          <div class="form-group" style="margin-top: 8px; max-width: 300px;">
+            <div class="form-label">Items recalled correctly (0–5)</div>
+            <select class="form-select">
+              <option>4 of 5 items</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="task-box">
+          <div class="task-number">Task 5 &middot; Recent News</div>
+          <div class="task-instruction">Patient describes a recent news event</div>
+          <div class="radio-group">
+            <div class="radio-btn selected" onclick="selectBtn(this, 'fu-t5')">&#10003; Correct — 1pt</div>
+            <div class="radio-btn" onclick="selectBtn(this, 'fu-t5')">Incorrect — 0pt</div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <div class="section-divider-label">Follow-up Score (auto-calculated)</div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 16px; padding: 12px 0;">
+          <div class="score-badge amber">7 <span class="score-max">/ 9</span></div>
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--amber);">More information recommended</div>
+            <div style="font-size: 12px; color: var(--text-light);">Improved from baseline (5/9). Still within review threshold.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="showScreen('baseline')">&#8592; Back</button>
+        <button class="btn btn-primary btn-right" onclick="showScreen('results')">View Scored Results &#8594;</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: SCORED RESULTS -->
+    <div class="screen" id="screen-results">
+      <div class="page-title">Auto-Scored Results</div>
+      <div class="page-subtitle">All scores calculated from item-level responses. No manual calculation required.</div>
+
+      <div class="metrics-row">
+        <div class="metric-card amber">
+          <div class="mc-label">Baseline GPCOG</div>
+          <div class="mc-value">5<span style="font-size:16px; color: var(--text-light)">/9</span></div>
+          <div class="mc-sub">01 Jun 2026</div>
+        </div>
+        <div class="metric-card amber">
+          <div class="mc-label">Follow-up GPCOG</div>
+          <div class="mc-value">7<span style="font-size:16px; color: var(--text-light)">/9</span></div>
+          <div class="mc-sub">15 Jul 2026</div>
+        </div>
+        <div class="metric-card green">
+          <div class="mc-label">Score Delta</div>
+          <div class="mc-value">+2</div>
+          <div class="mc-sub">Improvement from baseline</div>
+        </div>
+        <div class="metric-card teal">
+          <div class="mc-label">Time to Results</div>
+          <div class="mc-value">0<span style="font-size:16px; color: var(--text-light)">min</span></div>
+          <div class="mc-sub">Auto-scored on submission</div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">Item-Level Response Comparison</div>
+        <div class="form-card-desc">Raw responses per task, both visits. Differences highlighted automatically.</div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Points</th>
+              <th>Baseline</th>
+              <th>Follow-up</th>
+              <th>Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Time orientation</strong></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">1 pt</td>
+              <td><span class="chip green">Correct</span></td>
+              <td><span class="chip green">Correct</span></td>
+              <td><span class="delta neu">&mdash;</span></td>
+            </tr>
+            <tr>
+              <td><strong>Clock — numbers</strong></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">1 pt</td>
+              <td><span class="chip red">Incorrect</span></td>
+              <td><span class="chip green">Correct</span></td>
+              <td><span class="delta pos">+1</span></td>
+            </tr>
+            <tr>
+              <td><strong>Clock — hands</strong></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">1 pt</td>
+              <td><span class="chip red">Incorrect</span></td>
+              <td><span class="chip red">Incorrect</span></td>
+              <td><span class="delta neu">&mdash;</span></td>
+            </tr>
+            <tr>
+              <td><strong>Name/address recall</strong><br><span style="font-size:11px; color: var(--text-light);">5 sub-items, each 1 pt</span></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">5 pt</td>
+              <td><span class="chip amber">3 / 5</span></td>
+              <td><span class="chip amber">4 / 5</span></td>
+              <td><span class="delta pos">+1</span></td>
+            </tr>
+            <tr>
+              <td><strong>Recent news recall</strong></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">1 pt</td>
+              <td><span class="chip green">Correct</span></td>
+              <td><span class="chip green">Correct</span></td>
+              <td><span class="delta neu">&mdash;</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); align-items: center;">
+          <div>
+            <div style="font-size: 11px; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Threshold Interpretation</div>
+            <div style="font-size: 13px; line-height: 1.5;">Both visits score within the <strong>5–8 range</strong>: further information recommended. GPCOG Part 2 informant interview is indicated.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">GPCOG Part 2 — Informant Interview Summary</div>
+        <div class="form-card-desc">Completed by: David Thornton (spouse) &middot; Baseline visit only. Follow-up informant interview pending.</div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Informant Question</th>
+              <th>Baseline Response</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Compared to 10 years ago, does patient have more difficulty remembering recent events?</td>
+              <td><span class="chip amber">Yes, more difficulty</span></td>
+              <td style="font-family: var(--mono); color: var(--red);">0</td>
+            </tr>
+            <tr>
+              <td>More difficulty recalling conversations?</td>
+              <td><span class="chip amber">Sometimes</span></td>
+              <td style="font-family: var(--mono); color: var(--red);">0</td>
+            </tr>
+            <tr>
+              <td>More difficulty finding the right word?</td>
+              <td><span class="chip red">Yes, a lot more</span></td>
+              <td style="font-family: var(--mono); color: var(--red);">0</td>
+            </tr>
+            <tr>
+              <td>More difficulty managing finances?</td>
+              <td><span class="chip green">No</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">1</td>
+            </tr>
+            <tr>
+              <td>More difficulty managing medications independently?</td>
+              <td><span class="chip green">No change</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">1</td>
+            </tr>
+            <tr>
+              <td>More difficulty with transportation?</td>
+              <td><span class="chip amber">Slight concern</span></td>
+              <td style="font-family: var(--mono); color: var(--red);">0</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);">
+          <div class="score-badge red">2 <span class="score-max">/ 6</span></div>
+          <div style="font-size: 13px; color: var(--text-mid);">Part 2 score of 3 or below indicates cognitive impairment. Standard investigations recommended.</div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="showScreen('followup')">&#8592; Back</button>
+        <button class="btn btn-primary btn-right" onclick="showScreen('delta')">View Progress Dashboard &#8594;</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: DELTA DASHBOARD -->
+    <div class="screen" id="screen-delta">
+      <div class="page-title">Progress View</div>
+      <div class="page-subtitle">Longitudinal score comparison with automated trend markers</div>
+
+      <div class="savings-banner">
+        <div class="savings-icon">⏱️</div>
+        <div class="savings-text">
+          <strong>Estimated time saved this patient episode</strong><br>
+          Manual scoring, collation, and comparison typically takes 18–25 minutes per visit pair. This was generated automatically.
+        </div>
+        <div class="savings-detail">~22 min</div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">Longitudinal Score Summary</div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Test</th>
+              <th>Max Score</th>
+              <th>Baseline</th>
+              <th>Follow-up 1</th>
+              <th>Delta</th>
+              <th>Clinical Range</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GPCOG Part 1</strong></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">9</td>
+              <td style="font-family: var(--mono);">5</td>
+              <td style="font-family: var(--mono);">7</td>
+              <td><span class="delta pos">+2</span></td>
+              <td><span class="chip amber">5–8: Review range</span></td>
+              <td><span class="chip amber">Improved, monitor</span></td>
+            </tr>
+            <tr>
+              <td><strong>GPCOG Part 2</strong><br><span style="font-size: 11px; color: var(--text-light);">Informant — baseline only</span></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">6</td>
+              <td style="font-family: var(--mono);">2</td>
+              <td style="font-family: var(--mono); color: var(--text-light);">Pending</td>
+              <td><span class="delta neu">—</span></td>
+              <td><span class="chip red">≤3: Impairment indicated</span></td>
+              <td><span class="chip red">Flagged — repeat needed</span></td>
+            </tr>
+            <tr>
+              <td><strong>Clock Drawing</strong><br><span style="font-size: 11px; color: var(--text-light);">Numbers sub-score</span></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">1</td>
+              <td style="font-family: var(--mono);">0</td>
+              <td style="font-family: var(--mono);">1</td>
+              <td><span class="delta pos">+1</span></td>
+              <td><span class="chip green">Normalised</span></td>
+              <td><span class="chip green">Resolved</span></td>
+            </tr>
+            <tr>
+              <td><strong>Recall — Name/Address</strong><br><span style="font-size: 11px; color: var(--text-light);">Sub-score of Part 1</span></td>
+              <td style="font-family: var(--mono); color: var(--text-light);">5</td>
+              <td style="font-family: var(--mono);">3</td>
+              <td style="font-family: var(--mono);">4</td>
+              <td><span class="delta pos">+1</span></td>
+              <td><span class="chip amber">Partial improvement</span></td>
+              <td><span class="chip amber">Monitor</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pipeline Banner (signature element) -->
+      <div style="font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 10px;">
+        How your manual process becomes this view
+      </div>
+      <div class="pipeline-banner">
+        <div class="pipe-step">
+          <div class="pipe-step-inner">
+            <div class="pipe-step-icon">📝</div>
+            <div class="pipe-step-label">Raw Entry</div>
+            <div class="pipe-step-desc">Clinician selects responses</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-step-inner">
+            <div class="pipe-step-icon">⚡</div>
+            <div class="pipe-step-label">Auto Score</div>
+            <div class="pipe-step-desc">Rules engine calculates totals</div>
+          </div>
+        </div>
+        <div class="pipe-step highlight">
+          <div class="pipe-step-inner">
+            <div class="pipe-step-icon">📊</div>
+            <div class="pipe-step-label">Collation</div>
+            <div class="pipe-step-desc">Visits compared automatically</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-step-inner">
+            <div class="pipe-step-icon">🤖</div>
+            <div class="pipe-step-label">AI Synthesis</div>
+            <div class="pipe-step-desc">Draft note generated for review</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-step-inner">
+            <div class="pipe-step-icon">🩺</div>
+            <div class="pipe-step-label">Clinician Review</div>
+            <div class="pipe-step-desc">Edit, confirm, and sign off</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" style="margin-top: 0;">
+        <div class="form-card-title">Automated Referral Flags</div>
+        <div class="alert-box amber" style="margin-bottom: 8px;">
+          <span class="alert-icon">⚠️</span>
+          <span><strong>GPCOG Part 2 not repeated at follow-up.</strong> Informant interview is indicated given Part 1 score remaining in review range. Schedule before next session.</span>
+        </div>
+        <div class="alert-box amber">
+          <span class="alert-icon">⚠️</span>
+          <span><strong>Clock hand placement remains incorrect across both visits.</strong> Visuospatial/executive component has not normalised. Consider noting in referral if patient progresses to specialist evaluation.</span>
+        </div>
+        <div class="alert-box green">
+          <span class="alert-icon">✓</span>
+          <span><strong>Clock number placement normalised at follow-up.</strong> Baseline error resolved. Consistent with patient-reported reduction in cognitive fatigue.</span>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="showScreen('results')">&#8592; Back</button>
+        <button class="btn btn-primary btn-right" onclick="showScreen('report')">Generate AI Assessment Note &#8594;</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 6: AI REPORT -->
+    <div class="screen" id="screen-report">
+      <div class="page-title">AI Assessment Note</div>
+      <div class="page-subtitle">System-generated first-pass synthesis. Edit before finalising.</div>
+
+      <div class="alert-box teal" style="background: var(--teal-faint); border-color: var(--teal); color: var(--navy);">
+        <span class="alert-icon">🤖</span>
+        <span>This note was generated automatically from structured response data. It is a <strong>draft for clinician review</strong>, not a clinical document until reviewed and signed. Edit any section before export.</span>
+      </div>
+
+      <div class="ai-report">
+        <div class="ai-report-header">
+          <span class="ai-tag">AI DRAFT</span>
+          <div class="ai-report-header-title">Cognitive Screening Summary — Margaret Thornton</div>
+          <div class="ai-report-header-sub">Generated: 15 Jul 2026 &middot; 14:38</div>
+        </div>
+        <div class="ai-report-body">
+          <div class="ai-report-section">
+            <div class="ai-report-section-title">Patient and Assessment Context</div>
+            <div class="ai-report-text">Margaret Thornton (DOB 14 March 1952, age 74) is currently receiving hyperbaric oxygen therapy for post-COVID cognitive fatigue, Session 22 of a 40-session block. This follow-up cognitive screening was conducted on 15 July 2026 as part of structured pre/post HBOT assessment. Baseline assessment was completed on 01 June 2026. The administering clinician was Dr. Sarah Mehra.</div>
+          </div>
+
+          <div class="ai-report-section">
+            <div class="ai-report-section-title">Baseline Findings (01 Jun 2026)</div>
+            <div class="ai-report-text">At baseline, the patient's GPCOG Part 1 score was 5 out of 9, placing the result in the range where additional information is recommended (score 5–8) rather than a clear normal classification. Time orientation was intact. Clock drawing was impaired on both number placement and hand placement. Delayed recall of a name and address yielded 3 of 5 items correctly. Recent news recall was intact. GPCOG Part 2 informant interview (spouse) scored 2 out of 6, which falls below the threshold of 3 and indicates cognitive impairment warranting standard clinical investigations.</div>
+          </div>
+
+          <div class="ai-report-section">
+            <div class="ai-report-section-title">Follow-up Findings (15 Jul 2026)</div>
+            <div class="ai-report-text">At follow-up, the patient's GPCOG Part 1 score improved to 7 out of 9, representing a 2-point gain from baseline. This result continues to fall within the 5–8 review range. Time orientation remained intact. Clock number placement improved to correct (resolved from baseline). Clock hand placement remained incorrect. Delayed recall improved to 4 of 5 items. Recent news recall remained intact.</div>
+          </div>
+
+          <div class="ai-report-section">
+            <div class="ai-report-section-title">Synthesis and Pattern</div>
+            <div class="ai-report-text">Across both administrations, the pattern suggests measurable improvement in short-term recall and visuospatial performance specifically in number placement accuracy. Clock hand placement and delayed name/address recall (one remaining error) represent areas that have not fully normalised. The overall GPCOG Part 1 trajectory is positive but does not move the result into the unimpaired range (9/9). The system therefore classifies the case as improved from baseline with monitoring indicated, and flags that the GPCOG Part 2 informant interview was not repeated at this visit and remains outstanding.</div>
+          </div>
+
+          <div class="ai-report-section">
+            <div class="ai-report-section-title">Automated Recommendations</div>
+            <div class="ai-report-text">1. Schedule GPCOG Part 2 informant repeat at next visit. 2. Continue structured follow-up at completion of HBOT block. 3. Consider specialist referral if Part 2 score at next visit remains at or below 3. 4. Document patient-reported improvement in word-finding (noted in session notes) alongside formal screening data for complete clinical picture.</div>
+          </div>
+
+          <div class="clinician-note-label">Clinician Additions / Overrides</div>
+          <textarea class="ai-report-edit">Patient's subjective report of improvement is consistent with objective score gain. I note that clock hand errors may relate to pre-existing visuospatial difficulty rather than cognitive decline — will compare against patient's occupational history at next review. Informant interview scheduled for 22 Jul 2026.</textarea>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="showScreen('delta')">&#8592; Back</button>
+        <button class="btn btn-secondary">Export as PDF</button>
+        <button class="btn btn-secondary">Push to EMR</button>
+        <button class="btn btn-navy btn-right" onclick="showScreen('audit')">Finalise and Sign &#8594;</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 7: AUDIT TRAIL -->
+    <div class="screen" id="screen-audit">
+      <div class="page-title">Audit Trail</div>
+      <div class="page-subtitle">Immutable log of all entries, score calculations, and actions for this patient episode</div>
+
+      <div class="form-card">
+        <div class="form-card-title">What was automated in this episode</div>
+        <div class="form-card-desc">Manual steps removed from the clinical workflow</div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Manual Step</th>
+              <th>Old Process</th>
+              <th>New Process</th>
+              <th>Estimated Time Saved</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GPCOG Part 1 scoring</strong></td>
+              <td style="color: var(--text-light);">Manual count, lookup scoring guide</td>
+              <td><span class="chip green">Automatic on submit</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">3 min</td>
+            </tr>
+            <tr>
+              <td><strong>GPCOG Part 2 scoring</strong></td>
+              <td style="color: var(--text-light);">Manual count, threshold check</td>
+              <td><span class="chip green">Automatic on submit</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">2 min</td>
+            </tr>
+            <tr>
+              <td><strong>Spreadsheet entry</strong></td>
+              <td style="color: var(--text-light);">Manual re-entry into tracking spreadsheet</td>
+              <td><span class="chip green">No re-entry required</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">5 min</td>
+            </tr>
+            <tr>
+              <td><strong>Baseline vs follow-up comparison</strong></td>
+              <td style="color: var(--text-light);">Manual lookup of prior record, delta calculated by hand</td>
+              <td><span class="chip green">Auto-generated delta table</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">6 min</td>
+            </tr>
+            <tr>
+              <td><strong>Assessment note drafting</strong></td>
+              <td style="color: var(--text-light);">Clinician types narrative from raw scores</td>
+              <td><span class="chip green">AI draft for clinician review</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">12 min</td>
+            </tr>
+            <tr>
+              <td><strong>Flag / referral check</strong></td>
+              <td style="color: var(--text-light);">Clinician reviews thresholds manually</td>
+              <td><span class="chip green">Rules-based auto-flags</span></td>
+              <td style="font-family: var(--mono); color: var(--green);">4 min</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding: 16px 0 4px; border-top: 2px solid var(--border); margin-top: 16px; display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-mid);">Total estimated time saved per visit pair</div>
+          <div style="font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--green); margin-left: auto;">~32 min</div>
+        </div>
+        <div style="font-size: 12px; color: var(--text-light); margin-top: 4px; text-align: right;">At 10 patients/week, this is approximately 5+ hours of staff time recovered weekly</div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">Activity Log</div>
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Action</th>
+              <th>User</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:02</td>
+              <td>Patient intake confirmed</td>
+              <td>Dr. S. Mehra</td>
+              <td><span class="chip teal">Intake</span></td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:18</td>
+              <td>Follow-up GPCOG Part 1 submitted</td>
+              <td>Dr. S. Mehra</td>
+              <td><span class="chip teal">7 / 9</span></td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:18</td>
+              <td>Score auto-calculated</td>
+              <td><span style="font-style: italic; color: var(--text-light);">System</span></td>
+              <td><span class="chip green">Auto-score</span></td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:19</td>
+              <td>Baseline delta comparison generated</td>
+              <td><span style="font-style: italic; color: var(--text-light);">System</span></td>
+              <td><span class="chip green">+2 pts</span></td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:35</td>
+              <td>Referral flags auto-triggered</td>
+              <td><span style="font-style: italic; color: var(--text-light);">System</span></td>
+              <td><span class="chip amber">2 flags</span></td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:38</td>
+              <td>AI assessment note generated</td>
+              <td><span style="font-style: italic; color: var(--text-light);">System</span></td>
+              <td><span class="chip teal">Draft</span></td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:51</td>
+              <td>Clinician annotation added</td>
+              <td>Dr. S. Mehra</td>
+              <td><span class="chip teal">Edited</span></td>
+            </tr>
+            <tr>
+              <td style="font-family: var(--mono); font-size: 12px; color: var(--text-light);">15 Jul 2026 14:52</td>
+              <td>Assessment note finalised and signed</td>
+              <td>Dr. S. Mehra</td>
+              <td><span class="chip green">Signed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="showScreen('report')">&#8592; Back to AI Note</button>
+        <button class="btn btn-primary">Export Full Episode PDF</button>
+        <button class="btn btn-navy btn-right">New Patient Episode</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="poc-disclaimer">
+  PROOF OF CONCEPT ONLY &middot; Not a certified medical device &middot; Sample patient data &middot; GPCOG scoring thresholds based on published instrument guidelines &middot; All AI-generated content requires clinician review before clinical use
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  const navMap = {
+    intake: 0, baseline: 1, followup: 2, results: 3, delta: 4, report: 5, audit: 6
+  };
+  const navItems = document.querySelectorAll('.nav-item');
+  const idx = navMap[id];
+  if (idx !== undefined && navItems[idx]) {
+    navItems[idx].classList.add('active');
+  }
+  window.scrollTo(0, 0);
+}
+
+function selectBtn(el, group) {
+  const parent = el.closest('.radio-group') || el.parentElement;
+  parent.querySelectorAll('.radio-btn').forEach(b => {
+    b.classList.remove('selected', 'selected-no');
+  });
+  if (el.textContent.includes('Incorrect') || el.textContent.includes('✗')) {
+    el.classList.add('selected-no');
+  } else {
+    el.classList.add('selected');
+  }
+}
+</script>
+
+</body>
+</html>

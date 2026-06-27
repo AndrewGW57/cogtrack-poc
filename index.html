@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogTrack — Cognitive Assessment Workflow Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy-deep:  #071630;
+    --navy:       #0D2456;
+    --navy-mid:   #163272;
+    --navy-light: #1E428F;
+    --blue-accent:#2E6DD4;
+    --blue-pale:  #EEF3FA;
+    --gold-soft:  #C8A050;
+    --gold-faint: rgba(200,160,80,0.12);
+    --teal:       #1A8080;
+    --teal-light: #22A8A8;
+    --teal-faint: rgba(26,128,128,0.1);
+    --white:      #FFFFFF;
+    --off-white:  #F7F9FC;
+    --border:     #D8E2F0;
+    --border-dark:rgba(255,255,255,0.08);
+    --text:       #0F1E35;
+    --text-mid:   #3D5068;
+    --text-light: #7A90A8;
+    --serif:  'Playfair Display', Georgia, serif;
+    --sans:   'IBM Plex Sans', sans-serif;
+    --mono:   'IBM Plex Mono', monospace;
+  }
+
+  body { font-family: var(--sans); background: var(--off-white); color: var(--text); }
+
+  /* ── POC BANNER ─────────────────────────────── */
+  .poc-bar {
+    background: var(--navy-mid);
+    padding: 7px 28px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.5px;
+    font-family: var(--mono);
+  }
+
+  /* ── TOPBAR ─────────────────────────────────── */
+  .topbar {
+    background: var(--navy-deep);
+    padding: 0 40px;
+    display: flex;
+    align-items: stretch;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border-dark);
+  }
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-right: 24px;
+    border-right: 1px solid var(--border-dark);
+    margin-right: 24px;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--blue-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+  .logo-text {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.2px;
+  }
+  .logo-text span { color: rgba(255,255,255,0.45); font-weight: 300; }
+  .topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .topbar-nav a {
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+    padding: 0 16px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .topbar-nav a:hover { color: white; border-bottom-color: var(--blue-accent); }
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar-btn {
+    padding: 7px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    font-family: var(--sans);
+    transition: opacity 0.15s;
+  }
+  .topbar-btn:hover { opacity: 0.85; }
+  .topbar-btn.ghost { color: rgba(255,255,255,0.6); border: 1px solid var(--border-dark); background: none; }
+  .topbar-btn.primary { background: var(--blue-accent); color: white; }
+
+  /* ── HERO ───────────────────────────────────── */
+  .hero {
+    background: var(--navy-deep);
+    padding: 76px 40px 68px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Subtle radial — upper right, cool blue */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(30,66,143,0.35) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  /* Bottom rule */
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--navy-light) 40%, var(--blue-accent) 60%, transparent 100%);
+  }
+  .hero-inner { max-width: 960px; margin: 0 auto; position: relative; }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--blue-accent);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--blue-accent);
+    animation: blink 2.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(32px, 4.2vw, 52px);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.17;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    max-width: 740px;
+  }
+  .hero-title em { color: rgba(255,255,255,0.55); font-style: italic; font-weight: 400; }
+
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.5);
+    max-width: 580px;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+
+  .hero-cta-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 24px; border-radius: 4px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none;
+    font-family: var(--sans);
+    transition: opacity 0.15s, transform 0.12s;
+    text-decoration: none;
+  }
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn.primary { background: var(--blue-accent); color: white; }
+  .btn.ghost { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); color: rgba(255,255,255,0.7); }
+
+  .hero-proof {
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-dark);
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .hero-proof-item {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .hero-proof-item strong { color: rgba(255,255,255,0.5); font-weight: 500; }
+
+  /* ── SCORE VISUALISATION ────────────────────── */
+  .viz-section {
+    background: var(--navy);
+    padding: 64px 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .viz-inner { max-width: 960px; margin: 0 auto; }
+
+  .section-eyebrow-dark {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--blue-accent); margin-bottom: 8px;
+  }
+  .section-title-dark {
+    font-family: var(--serif); font-size: 26px; font-weight: 700;
+    color: var(--white); margin-bottom: 6px; line-height: 1.25;
+  }
+  .section-sub-dark {
+    font-size: 14px; color: rgba(255,255,255,0.4);
+    margin-bottom: 40px; font-weight: 300; line-height: 1.65;
+    max-width: 600px;
+  }
+
+  /* unified chart — single element per row guarantees alignment */
+  .score-chart {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .chart-header-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr 52px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.2);
+    align-items: center;
+    gap: 12px;
+  }
+  .chart-hdr-domain {
+    font-family: var(--mono); font-size: 9px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: rgba(255,255,255,0.4);
+  }
+  .chart-col-lbl {
+    font-family: var(--mono); font-size: 9px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .col-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-before { background: rgba(255,255,255,0.35); }
+  .dot-after  { background: var(--gold-soft); }
+
+  .chart-data-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr 52px;
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    align-items: center;
+    gap: 12px;
+    transition: background 0.12s;
+  }
+  .chart-data-row:last-child { border-bottom: none; }
+  .chart-data-row:hover { background: rgba(255,255,255,0.03); }
+
+  .chart-domain-label {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .chart-domain-tag {
+    font-family: var(--mono); font-size: 9px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .chart-domain-name {
+    font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.85);
+  }
+  .chart-cell { display: flex; align-items: center; gap: 10px; }
+  .bar-wrap { flex: 1; height: 5px; background: rgba(255,255,255,0.08); border-radius: 1px; overflow: hidden; }
+  .bar { height: 100%; border-radius: 1px; transition: width 1.1s cubic-bezier(0.4,0,0.2,1); }
+  .bar-b { background: rgba(255,255,255,0.28); }
+  .bar-a { background: var(--gold-soft); }
+  .bar-val { font-family: var(--mono); font-size: 12px; font-weight: 600; min-width: 24px; text-align: right; flex-shrink: 0; }
+  .val-b { color: rgba(255,255,255,0.5); }
+  .val-a { color: var(--gold-soft); }
+  .delta { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--gold-soft); text-align: right; }
+
+  .chart-footer {
+    display: flex; align-items: center; gap: 20px;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    background: rgba(0,0,0,0.12);
+    font-size: 11px; color: rgba(255,255,255,0.3);
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+
+  /* ── MODULES ────────────────────────────────── */
+  .modules-section {
+    background: var(--blue-pale);
+    padding: 64px 40px;
+  }
+  .modules-inner { max-width: 960px; margin: 0 auto; }
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--blue-accent); margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: var(--serif); font-size: 26px; font-weight: 700;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 14px; color: var(--text-mid); margin-bottom: 36px;
+    font-weight: 300; line-height: 1.65;
+  }
+
+  .module-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  .module-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.18s, transform 0.15s, border-color 0.18s;
+  }
+  .module-card:hover {
+    box-shadow: 0 6px 28px rgba(13,36,86,0.1);
+    transform: translateY(-2px);
+    border-color: var(--blue-accent);
+  }
+  .card-accent { height: 3px; background: var(--border); transition: background 0.18s; }
+  .module-card:hover .card-accent { background: var(--blue-accent); }
+  .card-body { padding: 18px 18px 14px; flex: 1; }
+  .card-code {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--blue-accent); margin-bottom: 6px;
+  }
+  .card-langs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+  .lang-tag {
+    font-size: 10.5px; color: var(--text-light);
+    background: var(--blue-pale); border: 1px solid var(--border);
+    border-radius: 2px; padding: 1px 7px; font-family: var(--mono);
+  }
+  .card-name {
+    font-family: var(--serif); font-size: 15px; font-weight: 700;
+    color: var(--text); margin-bottom: 8px; line-height: 1.3;
+  }
+  .card-desc { font-size: 12.5px; color: var(--text-mid); line-height: 1.6; }
+  .card-tasks { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .card-task { display: flex; align-items: flex-start; gap: 6px; font-size: 11.5px; color: var(--text-mid); }
+  .task-pip { width: 4px; height: 4px; border-radius: 50%; background: var(--blue-accent); flex-shrink: 0; margin-top: 5px; }
+  .card-footer {
+    padding: 10px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--blue-pale);
+  }
+  .card-link {
+    font-size: 12px; font-weight: 600; color: var(--blue-accent);
+    text-decoration: none; display: flex; align-items: center; gap: 4px;
+    transition: gap 0.15s;
+  }
+  .card-link:hover { gap: 7px; }
+  .chip {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    border-radius: 2px; padding: 2px 7px; font-family: var(--mono);
+  }
+  .chip-blue { background: rgba(46,109,212,0.08); color: var(--blue-accent); border: 1px solid rgba(46,109,212,0.2); }
+  .chip-teal { background: var(--teal-faint); color: var(--teal); border: 1px solid rgba(26,128,128,0.2); }
+
+  /* ── WORKFLOW ────────────────────────────────── */
+  .workflow-section {
+    background: var(--navy-deep);
+    padding: 64px 40px;
+  }
+  .workflow-inner { max-width: 960px; margin: 0 auto; }
+  .wf-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-top: 40px;
+    border: 1px solid var(--border-dark);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .wf-step {
+    padding: 24px 20px;
+    border-right: 1px solid var(--border-dark);
+    position: relative;
+  }
+  .wf-step:last-child { border-right: none; }
+  .wf-num {
+    font-family: var(--mono); font-size: 26px; font-weight: 600;
+    color: var(--blue-accent); opacity: 0.25; line-height: 1; margin-bottom: 14px;
+  }
+  .wf-title { font-size: 13px; font-weight: 600; color: white; margin-bottom: 8px; }
+  .wf-desc { font-size: 12px; color: rgba(255,255,255,0.3); line-height: 1.6; }
+
+  /* ── LANGUAGES ───────────────────────────────── */
+  .lang-section {
+    background: var(--navy);
+    padding: 64px 40px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  .lang-inner { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .lang-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 3px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .lang-card.live { border-color: rgba(46,109,212,0.35); background: rgba(46,109,212,0.06); }
+  .lang-flag { font-size: 20px; }
+  .lang-name { font-size: 13px; font-weight: 600; color: white; }
+  .lang-status { font-family: var(--mono); font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 2px; }
+  .lang-status.live { color: var(--blue-accent); }
+
+  /* ── SAVINGS ─────────────────────────────────── */
+  .savings-section { background: white; padding: 64px 40px; }
+  .savings-inner { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 56px; align-items: start; }
+  .stat-stack { display: flex; flex-direction: column; gap: 28px; }
+  .stat-num {
+    font-family: var(--serif); font-size: 48px; font-weight: 700;
+    color: var(--navy); line-height: 1;
+  }
+  .stat-label { font-size: 13px; color: var(--text-mid); margin-top: 5px; line-height: 1.5; }
+
+  .savings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .savings-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); font-weight: 600; padding: 8px 14px; border-bottom: 2px solid var(--border); font-family: var(--mono); }
+  .savings-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .savings-table tr:last-child td { border-bottom: none; }
+  .savings-num { font-family: var(--mono); font-weight: 700; color: var(--teal); }
+  .savings-total td { font-weight: 700; border-top: 2px solid var(--text); border-bottom: none; }
+
+  /* ── FOOTER ──────────────────────────────────── */
+  .footer {
+    background: var(--navy-deep);
+    padding: 32px 40px;
+    border-top: 1px solid var(--border-dark);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .footer-left { }
+  .footer-product {
+    font-family: var(--sans); font-size: 15px; font-weight: 600;
+    color: white; margin-bottom: 4px;
+  }
+  .footer-product span { color: rgba(255,255,255,0.35); font-weight: 300; }
+  .footer-desc { font-size: 12px; color: rgba(255,255,255,0.28); line-height: 1.65; max-width: 400px; margin-top: 8px; }
+  .footer-right { text-align: right; font-size: 12px; color: rgba(255,255,255,0.25); line-height: 1.8; }
+  .footer-right a { color: rgba(255,255,255,0.35); text-decoration: none; }
+  .footer-right a:hover { color: rgba(255,255,255,0.6); }
+
+  @media (max-width: 768px) {
+    .module-grid { grid-template-columns: 1fr; }
+    .wf-steps { grid-template-columns: 1fr 1fr; }
+    .lang-inner { grid-template-columns: 1fr; }
+    .savings-inner { grid-template-columns: 1fr; }
+    .hero { padding: 52px 20px 48px; }
+    .topbar { padding: 0 20px; }
+    .topbar-nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="poc-bar">Proof of concept &nbsp;·&nbsp; Sample data only &nbsp;·&nbsp; Not for clinical use</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-mark">CT</div>
+    <div class="logo-text">CogTrack <span>/ POC v1.0</span></div>
+  </div>
+  <nav class="topbar-nav">
+    <a href="#modules">Assessments</a>
+    <a href="#workflow">Workflow</a>
+    <a href="#languages">Languages</a>
+    <a href="#savings">Time savings</a>
+  </nav>
+  <div class="topbar-right">
+    <a href="index.html" class="topbar-btn ghost">Clinician dashboard</a>
+    <a href="questionnaire.html" class="topbar-btn primary">Patient questionnaire ↗</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      Cognitive assessment platform &nbsp;·&nbsp; Proof of concept
+    </div>
+    <h1 class="hero-title">
+      From paper test to<br>signed clinical record<br>
+      <em>without the manual steps in between.</em>
+    </h1>
+    <p class="hero-sub">
+      AssessTrack automates the workflow between a patient completing a cognitive assessment and a clinician signing off the result. Scoring, collation, longitudinal comparison, and first-pass summary are all handled by the system. The clinician reviews and decides.
+    </p>
+    <div class="hero-cta-row">
+      <a href="index.html" class="btn primary">Open clinician demo ↗</a>
+      <a href="#modules" class="btn ghost">View all assessment modules ↓</a>
+    </div>
+    <div class="hero-proof">
+      <div class="hero-proof-item"><strong>6 form types</strong> in the current library</div>
+      <div class="hero-proof-item"><strong>4 languages</strong> live or in build</div>
+      <div class="hero-proof-item"><strong>~34 min</strong> saved per patient visit pair</div>
+      <div class="hero-proof-item"><strong>Zero re-entry</strong> between paper and record</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCORE VISUALISATION -->
+<section class="viz-section">
+  <div class="viz-inner">
+    <div class="section-eyebrow-dark">What the system produces</div>
+    <div class="section-title-dark">Pre and post treatment — measurable improvement, tracked automatically</div>
+    <div class="section-sub-dark">Baseline and follow-up scores across cognitive domains are compared without manual collation. This chart is generated from structured assessment data, not assembled by staff.</div>
+
+    <div class="score-chart">
+      <div class="chart-header-row">
+        <div class="chart-hdr-domain">Cognitive Domain</div>
+        <div class="chart-col-lbl" style="color:rgba(255,255,255,0.45);">
+          <div class="col-dot dot-before"></div> Baseline
+        </div>
+        <div class="chart-col-lbl" style="color:var(--gold-soft);">
+          <div class="col-dot dot-after"></div> Follow-up
+        </div>
+        <div></div>
+      </div>
+      <div id="chart-rows"></div>
+      <div class="chart-footer">
+        <div class="legend-item"><div class="col-dot dot-before" style="width:10px;height:10px;"></div> Before treatment</div>
+        <div class="legend-item"><div class="col-dot dot-after" style="width:10px;height:10px;"></div> <span style="color:var(--gold-soft);">After treatment</span></div>
+        <div style="margin-left:auto; font-family:var(--mono); font-size:10px;">Sample patient · scores out of 100 · for illustration only</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section class="modules-section" id="modules">
+  <div class="modules-inner">
+    <div class="section-eyebrow">Assessment library</div>
+    <div class="section-title">Six form types, one system</div>
+    <div class="section-sub">Every form in the library works three ways: completed on paper and scanned, digitally on a tablet, or both across different visits. All routes produce the same structured data record.</div>
+
+    <div class="module-grid">
+
+      <div class="module-card">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <div class="card-code">SAGE Form 1 — UK</div>
+          <div class="card-langs"><span class="lang-tag">🇬🇧 English (UK)</span></div>
+          <div class="card-name">Self Administered Gerocognitive Examination</div>
+          <div class="card-desc">12-task self-administered screen covering 7 cognitive domains. Includes picture naming, clock drawing, 3D copy, trail-making, animal fluency, and spatial problem-solving. Clinician-scored after scan extraction.</div>
+          <div class="card-tasks">
+            <div class="card-task"><div class="task-pip"></div>Date orientation &amp; picture naming</div>
+            <div class="card-task"><div class="task-pip"></div>Analogical reasoning &amp; arithmetic</div>
+            <div class="card-task"><div class="task-pip"></div>Delayed memory</div>
+            <div class="card-task"><div class="task-pip"></div>3D figure copy &amp; clock drawing</div>
+            <div class="card-task"><div class="task-pip"></div>Animal fluency, trail-making, spatial puzzle</div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="chip chip-blue">Paper + Scan</span>
+          <a href="scan.html" class="card-link">Scan demo ›</a>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <div class="card-code">SAGE Formulario 1 — SP</div>
+          <div class="card-langs"><span class="lang-tag">🇪🇸 Español</span></div>
+          <div class="card-name">Examen Gerocognitivo Autoadministrado</div>
+          <div class="card-desc">Spanish localisation of SAGE Form 1. Identical 12-task structure with currency in centavos/dólares. Extraction schema handles Spanish handwriting and response formats.</div>
+          <div class="card-tasks">
+            <div class="card-task"><div class="task-pip"></div>Orientación temporal y nombrar imágenes</div>
+            <div class="card-task"><div class="task-pip"></div>Semejanzas y aritmética</div>
+            <div class="card-task"><div class="task-pip"></div>Prueba de memoria diferida</div>
+            <div class="card-task"><div class="task-pip"></div>Copia 3D y dibujo del reloj</div>
+            <div class="card-task"><div class="task-pip"></div>Fluidez verbal, rastreo, problema espacial</div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="chip chip-blue">Paper + Scan</span>
+          <a href="scan.html" class="card-link">Scan demo ›</a>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <div class="card-code">GPCOG — Part 1 + 2</div>
+          <div class="card-langs"><span class="lang-tag">🇬🇧 English</span></div>
+          <div class="card-name">GP Assessment of Cognition</div>
+          <div class="card-desc">Clinician-administered brief screen. Part 1 patient exam (max 9) plus Part 2 informant interview (max 6). Threshold-based referral flags built in. Auto-scores on submission.</div>
+          <div class="card-tasks">
+            <div class="card-task"><div class="task-pip"></div>Time orientation</div>
+            <div class="card-task"><div class="task-pip"></div>Clock drawing (numbers + hands)</div>
+            <div class="card-task"><div class="task-pip"></div>Recent news recall</div>
+            <div class="card-task"><div class="task-pip"></div>Name and address recall</div>
+            <div class="card-task"><div class="task-pip"></div>Informant interview — 6 questions</div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="chip chip-teal">Clinician-administered</span>
+          <a href="index.html" class="card-link">Full demo ›</a>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <div class="card-code">CAQ-1.0</div>
+          <div class="card-langs">
+            <span class="lang-tag">🇬🇧 English</span>
+            <span class="lang-tag">🇦🇪 Arabic planned</span>
+            <span class="lang-tag">🇷🇺 Russian planned</span>
+          </div>
+          <div class="card-name">Cognitive &amp; Attention Questionnaire</div>
+          <div class="card-desc">10-question patient self-report on a tablet. A–D multiple choice, auto-scored 0–30. Results are PIN-gated — the patient sees a thank-you screen, the clinician enters a PIN to unlock scores and the AI summary.</div>
+          <div class="card-tasks">
+            <div class="card-task"><div class="task-pip"></div>Sustained attention &amp; task completion</div>
+            <div class="card-task"><div class="task-pip"></div>Organisation, forgetfulness, restlessness</div>
+            <div class="card-task"><div class="task-pip"></div>Impulse control &amp; time management</div>
+            <div class="card-task"><div class="task-pip"></div>Mental fatigue &amp; task-switching</div>
+            <div class="card-task"><div class="task-pip"></div>Overall daily functioning impact</div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="chip chip-teal">Tablet self-complete</span>
+          <a href="questionnaire.html" class="card-link">Tablet demo ›</a>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <div class="card-code">Scan &amp; Extract</div>
+          <div class="card-langs"><span class="lang-tag">All form types</span></div>
+          <div class="card-name">Photo-to-Record Extraction</div>
+          <div class="card-desc">Staff photograph any completed paper form. The system identifies the form type and language, reads marks, handwriting, and drawn responses, and pre-populates the scoring record. Clinician confirms before anything is written.</div>
+          <div class="card-tasks">
+            <div class="card-task"><div class="task-pip"></div>Select form type and language first</div>
+            <div class="card-task"><div class="task-pip"></div>Per-field confidence flagging</div>
+            <div class="card-task"><div class="task-pip"></div>Handwritten total cross-check</div>
+            <div class="card-task"><div class="task-pip"></div>Inline correction before confirm</div>
+            <div class="card-task"><div class="task-pip"></div>Full audit trail on save</div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="chip chip-blue">Paper → Digital</span>
+          <a href="scan.html" class="card-link">Scan demo ›</a>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <div class="card-code">AI Clinical Summary</div>
+          <div class="card-langs"><span class="lang-tag">Auto-generated</span></div>
+          <div class="card-name">AI-Assisted Clinician Draft Note</div>
+          <div class="card-desc">Once scores are confirmed, the system generates a structured draft note covering context, baseline, follow-up findings, pattern synthesis, and recommendations. The clinician edits and signs. Both draft and final versions are stored.</div>
+          <div class="card-tasks">
+            <div class="card-task"><div class="task-pip"></div>Built from structured score data only</div>
+            <div class="card-task"><div class="task-pip"></div>AI is not involved in score calculation</div>
+            <div class="card-task"><div class="task-pip"></div>Editable before finalisation</div>
+            <div class="card-task"><div class="task-pip"></div>PDF and EMR export ready</div>
+            <div class="card-task"><div class="task-pip"></div>Audit log captures all versions</div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="chip chip-teal">Clinician review</span>
+          <a href="index.html" class="card-link">Full demo ›</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section class="workflow-section" id="workflow">
+  <div class="workflow-inner">
+    <div class="section-eyebrow-dark">Assessment workflow</div>
+    <div class="section-title-dark" style="font-family:var(--serif);">From paper in the room to signed note in the record</div>
+    <div class="section-sub-dark">Eight steps, four of which the system handles automatically. Clinician involvement stays at the beginning, the confirmation point, and the sign-off.</div>
+    <div class="wf-steps">
+      <div class="wf-step">
+        <div class="wf-num">01</div>
+        <div class="wf-title">Select form &amp; language</div>
+        <div class="wf-desc">Clinician chooses form type and patient language. The system loads the correct extraction schema, scoring logic, and threshold rules.</div>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">02</div>
+        <div class="wf-title">Patient completes</div>
+        <div class="wf-desc">Patient fills in the form on paper or on a tablet, depending on which assessment is being run. Either produces the same outcome.</div>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">03</div>
+        <div class="wf-title">Scan, extract, confirm</div>
+        <div class="wf-desc">Staff photograph the completed paper form. AI reads all responses. Clinician reviews flagged fields and confirms. Scores calculate automatically.</div>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">04</div>
+        <div class="wf-title">Review, note, sign</div>
+        <div class="wf-desc">Pre/post comparison generated automatically. AI draft note created. Clinician edits and signs. Record complete with full audit trail.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LANGUAGES -->
+<section class="lang-section" id="languages">
+  <div class="lang-inner">
+    <div>
+      <div class="section-eyebrow-dark">Multilingual</div>
+      <div class="section-title-dark" style="font-family:var(--serif);">One system. The patient's language.</div>
+      <p style="font-size:14px; color:rgba(255,255,255,0.4); line-height:1.7; margin-top:12px; font-weight:300;">
+        Each assessment form is served in the patient's own language. The extraction schema, scoring logic, and clinician output are identical regardless of which language was used. Arabic right-to-left layout, regional currency localisation, and dialect variants are all supported in the production architecture.
+      </p>
+    </div>
+    <div class="lang-grid">
+      <div class="lang-card live">
+        <div class="lang-flag">🇬🇧</div>
+        <div><div class="lang-name">English (UK)</div><div class="lang-status live">Live in POC</div></div>
+      </div>
+      <div class="lang-card live">
+        <div class="lang-flag">🇪🇸</div>
+        <div><div class="lang-name">Español</div><div class="lang-status live">Live in POC</div></div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇦🇪</div>
+        <div><div class="lang-name">العربية</div><div class="lang-status">Phase 2</div></div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇷🇺</div>
+        <div><div class="lang-name">Русский</div><div class="lang-status">Phase 2</div></div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇫🇷</div>
+        <div><div class="lang-name">Français</div><div class="lang-status">Phase 3</div></div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇩🇪</div>
+        <div><div class="lang-name">Deutsch</div><div class="lang-status">Phase 3</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIME SAVINGS -->
+<section class="savings-section" id="savings">
+  <div class="savings-inner">
+    <div class="stat-stack">
+      <div class="section-eyebrow">The case</div>
+      <div>
+        <div class="stat-num">34</div>
+        <div class="stat-label">minutes saved per patient visit pair, at current manual processing rates</div>
+      </div>
+      <div>
+        <div class="stat-num">5+</div>
+        <div class="stat-label">hours of clinical staff time recovered per week at 10 patients</div>
+      </div>
+      <div>
+        <div class="stat-num">0</div>
+        <div class="stat-label">re-entry steps between paper form and structured digital record</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title" style="margin-bottom:6px;">What clinician time is spent on today</div>
+      <div class="section-sub" style="margin-bottom:20px;">Each of these steps is manual, sequential, and produces a lag between patient assessment and clinician insight. The system removes them all.</div>
+      <table class="savings-table">
+        <thead>
+          <tr><th>Manual step</th><th>Current process</th><th>Time saved</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>SAGE scoring</strong></td><td style="color:var(--text-light);">Clinician applies rubric manually</td><td class="savings-num">~6 min</td></tr>
+          <tr><td><strong>GPCOG Part 1 + 2</strong></td><td style="color:var(--text-light);">Manual count, threshold check</td><td class="savings-num">~5 min</td></tr>
+          <tr><td><strong>CAQ administration</strong></td><td style="color:var(--text-light);">Paper handed out, manually scored</td><td class="savings-num">~4 min</td></tr>
+          <tr><td><strong>Scan transcription</strong></td><td style="color:var(--text-light);">Manual re-entry to system</td><td class="savings-num">~5 min</td></tr>
+          <tr><td><strong>Pre/post comparison</strong></td><td style="color:var(--text-light);">Manual lookup and delta calculation</td><td class="savings-num">~6 min</td></tr>
+          <tr><td><strong>Assessment note drafting</strong></td><td style="color:var(--text-light);">Typed by clinician from raw scores</td><td class="savings-num">~8 min</td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="savings-total"><td colspan="2">Total per visit pair</td><td class="savings-num" style="font-size:16px;">~34 min</td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-left">
+    <div class="footer-product">CogTrack <span>/ Cognitive Assessment Workflow Platform</span></div>
+    <div class="footer-desc">Proof of concept prepared by Plow Marketing Management LLC. All patient data, scores, and records shown are fictional and created for demonstration purposes only. Not a certified medical device. Not for clinical use in its current state.</div>
+  </div>
+  <div class="footer-right">
+    <div>Built by</div>
+    <div style="color:rgba(255,255,255,0.45); font-weight:600;">Plow Marketing Management LLC</div>
+    <div><a href="https://plowmm.com" target="_blank">plowmm.com ↗</a></div>
+    <div style="margin-top:8px; font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.18);">CogTrack POC v1.0 &nbsp;·&nbsp; June 2026</div>
+  </div>
+</footer>
+
+<script>
+const domains = [
+  { tag:'Domain 1', label:'Memory & Recall',    b:52, a:74 },
+  { tag:'Domain 2', label:'Attention & Focus',  b:48, a:71 },
+  { tag:'Domain 3', label:'Executive Function', b:44, a:68 },
+  { tag:'Domain 4', label:'Processing Speed',   b:56, a:79 },
+  { tag:'Domain 5', label:'Visuospatial',       b:60, a:81 },
+  { tag:'Domain 6', label:'Language Fluency',   b:65, a:83 },
+  { tag:'Overall',  label:'Total Score',        b:54, a:76 },
+];
+const rows = document.getElementById('chart-rows');
+domains.forEach((d,i) => {
+  rows.innerHTML += `<div class="chart-data-row">
+    <div class="chart-domain-label">
+      <div class="chart-domain-tag">${d.tag}</div>
+      <div class="chart-domain-name">${d.label}</div>
+    </div>
+    <div class="chart-cell">
+      <div class="bar-wrap"><div class="bar bar-b" id="bb${i}" style="width:0%"></div></div>
+      <div class="bar-val val-b">${d.b}</div>
+    </div>
+    <div class="chart-cell">
+      <div class="bar-wrap"><div class="bar bar-a" id="ba${i}" style="width:0%"></div></div>
+      <div class="bar-val val-a">${d.a}</div>
+    </div>
+    <div class="delta">+${d.a-d.b}</div>
+  </div>`;
+});
+
+const obs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    domains.forEach((d,i) => {
+      setTimeout(() => {
+        const bb = document.getElementById('bb'+i);
+        const ba = document.getElementById('ba'+i);
+        if(bb) bb.style.width = d.b+'%';
+        if(ba) ba.style.width = d.a+'%';
+      }, i * 75);
+    });
+    obs.disconnect();
+  }
+}, { threshold: 0.25 });
+const chart = document.querySelector('.score-chart');
+if(chart) obs.observe(chart);
+</script>
+</body>
+</html>

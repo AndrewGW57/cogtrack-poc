@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive & Attention Questionnaire — Paper Form</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --ink: #1A1A2E;
+    --ink-mid: #4A4A5E;
+    --ink-light: #8A8A9E;
+    --rule: #C8C8D8;
+    --rule-heavy: #8A8A9E;
+    --teal-accent: #2A7070;
+    --page-bg: #FAFAFA;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', 'Georgia', serif;
+    background: #D0D0D8;
+    color: var(--ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    background: var(--white);
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    padding: 18mm 20mm 16mm;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    position: relative;
+  }
+
+  /* HEADER */
+  .form-header {
+    border-bottom: 2.5px solid var(--ink);
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+  }
+  .clinic-line {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 8.5pt;
+    font-weight: 500;
+    color: var(--teal-accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .form-title {
+    font-size: 17pt;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 2px;
+  }
+  .form-subtitle {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 8pt;
+    color: var(--ink-mid);
+    font-style: italic;
+  }
+
+  /* PATIENT META */
+  .patient-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule-heavy);
+    margin: 8px 0 10px;
+  }
+  .meta-cell {
+    padding: 5px 8px;
+    border-right: 1px solid var(--rule-heavy);
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .meta-cell:last-child { border-right: none; }
+  .meta-label {
+    font-size: 7pt;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--ink-light);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .meta-line {
+    border-bottom: 1px solid var(--rule-heavy);
+    min-width: 100%;
+    height: 14px;
+  }
+
+  /* INSTRUCTIONS */
+  .instructions {
+    background: #F0F2F8;
+    border-left: 3px solid var(--teal-accent);
+    padding: 7px 10px;
+    margin-bottom: 12px;
+    font-size: 9pt;
+    line-height: 1.5;
+    color: var(--ink-mid);
+    font-style: italic;
+  }
+  .instructions strong {
+    font-style: normal;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* PERIOD LABEL */
+  .period-label {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 7.5pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--teal-accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+  }
+
+  /* QUESTION BLOCK */
+  .q-block {
+    margin-bottom: 10px;
+    page-break-inside: avoid;
+  }
+  .q-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+  .q-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9pt;
+    font-weight: 600;
+    color: var(--teal-accent);
+    min-width: 18px;
+    padding-top: 1px;
+    flex-shrink: 0;
+  }
+  .q-topic {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: var(--ink);
+    flex: 1;
+  }
+  .q-score-box {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8pt;
+    font-weight: 600;
+    color: var(--ink-light);
+    border: 1px solid var(--rule-heavy);
+    width: 22px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .q-text {
+    font-size: 9pt;
+    line-height: 1.5;
+    color: var(--ink-mid);
+    padding-left: 26px;
+    margin-bottom: 5px;
+  }
+  .options-row {
+    padding-left: 26px;
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--rule-heavy);
+  }
+  .option {
+    flex: 1;
+    padding: 4px 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    border-right: 1px solid var(--rule);
+    font-size: 8.5pt;
+  }
+  .option:last-child { border-right: none; }
+  .opt-bubble {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1.5px solid var(--rule-heavy);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .opt-letter {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 8pt;
+    color: var(--teal-accent);
+    min-width: 12px;
+  }
+  .opt-text {
+    font-size: 8pt;
+    color: var(--ink-mid);
+    line-height: 1.3;
+  }
+  .q-divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 8px 0;
+  }
+
+  /* SCORING */
+  .scoring-section {
+    margin-top: 14px;
+    border: 1px solid var(--rule-heavy);
+    page-break-inside: avoid;
+  }
+  .scoring-header {
+    background: var(--ink);
+    color: white;
+    padding: 5px 10px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .scoring-body {
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .scoring-key {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 8pt;
+  }
+  .scoring-key-title {
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink-light);
+  }
+  .score-assign {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .sa-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 7.5pt;
+  }
+  .sa-letter { font-weight: 600; color: var(--teal-accent); }
+  .sa-eq { color: var(--ink-light); }
+  .sa-val { color: var(--ink); }
+  .band-table { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+  .band-table td { padding: 2px 6px; border-bottom: 1px solid var(--rule); }
+  .band-table td:first-child { font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--teal-accent); }
+  .band-table td:last-child { color: var(--ink-mid); }
+
+  /* TOTAL ROW */
+  .total-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: end;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 2px solid var(--ink);
+  }
+  .total-label {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 9pt;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .total-boxes {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8pt;
+    color: var(--ink-light);
+  }
+  .total-box {
+    border: 1.5px solid var(--ink);
+    width: 26px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10pt;
+    font-weight: 700;
+  }
+  .total-slash { font-size: 10pt; color: var(--rule-heavy); }
+
+  /* BAND RESULT */
+  .band-result {
+    margin-top: 8px;
+    border: 1px solid var(--rule-heavy);
+    padding: 5px 10px;
+    display: flex;
+    gap: 20px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 8pt;
+  }
+  .band-label { color: var(--ink-light); font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 3px; }
+  .band-boxes { display: flex; gap: 6px; }
+  .band-check { display: flex; align-items: center; gap: 4px; }
+  .band-box-sq { width: 11px; height: 11px; border: 1px solid var(--rule-heavy); flex-shrink: 0; }
+  .band-text { font-size: 8pt; color: var(--ink-mid); }
+
+  /* CLINICIAN SIGN-OFF */
+  .signoff {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+  }
+  .signoff-field .sf-label { font-size: 7pt; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-light); font-weight: 600; margin-bottom: 4px; }
+  .signoff-field .sf-line { border-bottom: 1px solid var(--rule-heavy); height: 18px; }
+
+  /* FOOTER */
+  .form-footer {
+    margin-top: 14px;
+    padding-top: 6px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 7pt;
+    color: var(--ink-light);
+  }
+  .watermark {
+    font-size: 7pt;
+    color: var(--ink-light);
+    font-style: italic;
+  }
+
+  /* PRINT */
+  @media print {
+    body { background: white; }
+    .page { margin: 0; box-shadow: none; width: 100%; }
+    .print-btn { display: none; }
+  }
+
+  /* SCREEN ONLY */
+  .print-btn {
+    display: block;
+    margin: 0 auto 16px;
+    width: 210mm;
+    background: #2A7070;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .print-btn:hover { background: #1C5050; }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="form-header">
+    <div class="clinic-line">CogTrack Clinical Assessment System &nbsp;&middot;&nbsp; Confidential Patient Document</div>
+    <div class="form-title">Cognitive &amp; Attention Questionnaire</div>
+    <div class="form-subtitle">For demonstration purposes only &mdash; not a diagnostic instrument &mdash; POC v1.0</div>
+  </div>
+
+  <!-- PATIENT META -->
+  <div class="patient-meta">
+    <div class="meta-cell">
+      <div class="meta-label">Patient Name</div>
+      <div class="meta-line"></div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Patient ID</div>
+      <div class="meta-line"></div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Date of Birth</div>
+      <div class="meta-line"></div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Assessment Date</div>
+      <div class="meta-line"></div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Visit / Timepoint</div>
+      <div class="meta-line"></div>
+    </div>
+    <div class="meta-cell">
+      <div class="meta-label">Administering Clinician</div>
+      <div class="meta-line"></div>
+    </div>
+  </div>
+
+  <!-- INSTRUCTIONS -->
+  <div class="instructions">
+    <strong>Instructions:</strong> Please read each question carefully and choose the <strong>one answer</strong> that best describes how you have felt or behaved over the <strong>past 4 weeks</strong>. Circle or tick the letter next to your answer. Complete all 10 questions before handing the form back to your clinician.
+  </div>
+
+  <div class="period-label">Questions 1&ndash;5 &nbsp;&mdash;&nbsp; Attention &amp; Behaviour</div>
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">1.</div>
+      <div class="q-topic">Difficulty staying focused</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">When you are reading, working, or listening to someone speak, how often do you lose track of what you are doing because your mind drifts or you get distracted?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">2.</div>
+      <div class="q-topic">Finishing tasks</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you start tasks (work, studies, chores) but leave them unfinished because you get sidetracked or bored?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">3.</div>
+      <div class="q-topic">Organization and planning</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you have trouble organizing tasks or activities (for example, planning your day, keeping track of appointments, or breaking work into steps)?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">4.</div>
+      <div class="q-topic">Forgetfulness in daily life</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you forget important things such as appointments, paying bills, returning messages, or bringing what you need when you leave the house?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">5.</div>
+      <div class="q-topic">Restlessness</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you feel physically restless (for example, fidgeting, tapping, shifting in your seat) in situations where you are expected to sit still?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <div class="period-label" style="margin-top: 12px;">Questions 6&ndash;10 &nbsp;&mdash;&nbsp; Impulse Control &amp; Daily Impact</div>
+
+  <!-- Q6 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">6.</div>
+      <div class="q-topic">Impulsive decisions</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you make quick decisions (spending money, interrupting others, changing plans) without fully thinking through the consequences?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">7.</div>
+      <div class="q-topic">Time management</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you underestimate how long tasks will take, leading to being late, rushed, or leaving work incomplete?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">8.</div>
+      <div class="q-topic">Mental fatigue</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you feel mentally "drained" or exhausted after tasks that require sustained concentration (reading, reports, meetings, studying)?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">9.</div>
+      <div class="q-topic">Switching between tasks</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">How often do you find it hard to switch your attention smoothly from one task to another without losing track of what you were doing?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Almost never</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">Sometimes</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Often</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Almost all the time</span></div>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-block">
+    <div class="q-row">
+      <div class="q-num">10.</div>
+      <div class="q-topic">Impact on daily functioning</div>
+      <div class="q-score-box"></div>
+    </div>
+    <div class="q-text">Overall, how much do these attention, organization, or impulse-control difficulties interfere with your work, studies, relationships, or daily responsibilities?</div>
+    <div class="options-row">
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">A</span><span class="opt-text">Not at all</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">B</span><span class="opt-text">A little</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">C</span><span class="opt-text">Quite a bit</span></div>
+      <div class="option"><div class="opt-bubble"></div><span class="opt-letter">D</span><span class="opt-text">Extremely</span></div>
+    </div>
+  </div>
+
+  <!-- SCORING REFERENCE -->
+  <div class="scoring-section">
+    <div class="scoring-header">Scoring Reference (Clinician Use Only)</div>
+    <div class="scoring-body">
+      <div class="scoring-key">
+        <div class="scoring-key-title">Answer Value</div>
+        <div class="score-assign">
+          <div class="sa-item"><span class="sa-letter">A</span><span class="sa-eq">=</span><span class="sa-val">0</span></div>
+          <div class="sa-item"><span class="sa-letter">B</span><span class="sa-eq">=</span><span class="sa-val">1</span></div>
+          <div class="sa-item"><span class="sa-letter">C</span><span class="sa-eq">=</span><span class="sa-val">2</span></div>
+          <div class="sa-item"><span class="sa-letter">D</span><span class="sa-eq">=</span><span class="sa-val">3</span></div>
+        </div>
+        <div style="font-size: 7pt; color: var(--ink-light); margin-top: 2px;">Sum all 10 items. Range: 0&ndash;30.</div>
+      </div>
+      <div class="scoring-key">
+        <div class="scoring-key-title">Score Bands</div>
+        <table class="band-table">
+          <tr><td>0&ndash;7</td><td>Minimal reported difficulty</td></tr>
+          <tr><td>8&ndash;17</td><td>Moderate reported difficulty</td></tr>
+          <tr><td>18&ndash;30</td><td>High difficulty &mdash; clinician review recommended</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL -->
+  <div class="total-row">
+    <div class="total-label">Total Score (sum of all 10 item scores)</div>
+    <div class="total-boxes">
+      <span style="font-size: 8pt; margin-right: 4px;">Score:</span>
+      <div class="total-box"></div>
+      <div class="total-box"></div>
+      <div class="total-slash">/</div>
+      <div style="font-size: 9pt; font-weight: 600;">30</div>
+    </div>
+  </div>
+
+  <!-- BAND RESULT -->
+  <div class="band-result">
+    <div>
+      <div class="band-label">Score Band</div>
+      <div class="band-boxes">
+        <div class="band-check"><div class="band-box-sq"></div><span class="band-text">0&ndash;7 Minimal</span></div>
+        <div class="band-check" style="margin-left: 12px;"><div class="band-box-sq"></div><span class="band-text">8&ndash;17 Moderate</span></div>
+        <div class="band-check" style="margin-left: 12px;"><div class="band-box-sq"></div><span class="band-text">18&ndash;30 High / Review</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGN-OFF -->
+  <div class="signoff">
+    <div class="signoff-field">
+      <div class="sf-label">Reviewed by</div>
+      <div class="sf-line"></div>
+    </div>
+    <div class="signoff-field">
+      <div class="sf-label">Date reviewed</div>
+      <div class="sf-line"></div>
+    </div>
+    <div class="signoff-field">
+      <div class="sf-label">Clinician signature</div>
+      <div class="sf-line"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="form-footer">
+    <span>CogTrack POC &nbsp;&middot;&nbsp; Form CAQ-1.0 &nbsp;&middot;&nbsp; For demonstration only &nbsp;&middot;&nbsp; Not for clinical diagnosis</span>
+    <span>Page 1 of 1</span>
+  </div>
+
+</div>
+
+</body>
+</html>
