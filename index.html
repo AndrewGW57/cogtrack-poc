@@ -539,6 +539,7 @@
     </div>
     <div class="hero-proof">
       <div class="hero-proof-item"><strong>6 form types</strong> in the current library</div>
+
       <div class="hero-proof-item"><strong>Multiple languages</strong> supported</div>
       <div class="hero-proof-item"><strong>75+ min</strong> minimum saved per patient visit pair</div>
       <div class="hero-proof-item"><strong>Zero re-entry</strong> between paper and record</div>
@@ -578,8 +579,8 @@
 <section class="modules-section" id="modules">
   <div class="modules-inner">
     <div class="section-eyebrow">Assessment library</div>
-    <div class="section-title">Six form types, one system</div>
-    <div class="section-sub">Every form in the library works three ways: completed on paper and scanned, digitally on a tablet, or both across different visits. All routes produce the same structured data record.</div>
+    <div class="section-title">Six assessments, one system</div>
+    <div class="section-sub">Cognitive, attentional, and dietary assessments in one platform. Every form works three ways: completed on paper and scanned, digitally on a tablet, or both across different visits. All routes produce the same structured data record.</div>
 
     <div class="module-grid">
 
@@ -695,21 +696,26 @@
       <div class="module-card">
         <div class="card-accent"></div>
         <div class="card-body">
-          <div class="card-code">AI Clinical Summary</div>
-          <div class="card-langs"><span class="lang-tag">Auto-generated</span></div>
-          <div class="card-name">AI-Assisted Clinician Draft Note</div>
-          <div class="card-desc">Once scores are confirmed, the system generates a structured draft note covering context, baseline, follow-up findings, pattern synthesis, and recommendations. The clinician edits and signs. Both draft and final versions are stored.</div>
+          <div class="card-code">DIS-1.0</div>
+          <div class="card-langs">
+            <span class="lang-tag">🇬🇧 English</span>
+            <span class="lang-tag">Dietitian module</span>
+          </div>
+          <div class="card-name">Dietary Intake Screener</div>
+          <div class="card-desc">9-question patient self-report on dietary frequency across 5 food groups. A–I multiple choice, auto-scored 0–72 with positive and negative item weighting. Supports tablet self-complete or paper-and-scan. Results include AI-drafted dietitian summary.</div>
           <div class="card-tasks">
-            <div class="card-task"><div class="task-pip"></div>Built from structured score data only</div>
-            <div class="card-task"><div class="task-pip"></div>AI is not involved in score calculation</div>
-            <div class="card-task"><div class="task-pip"></div>Editable before finalisation</div>
-            <div class="card-task"><div class="task-pip"></div>PDF and EMR export ready</div>
-            <div class="card-task"><div class="task-pip"></div>Audit log captures all versions</div>
+            <div class="card-task"><div class="task-pip"></div>Fruits, vegetables &amp; legumes</div>
+            <div class="card-task"><div class="task-pip"></div>Fish, seafood &amp; proteins</div>
+            <div class="card-task"><div class="task-pip"></div>Whole vs refined grains</div>
+            <div class="card-task"><div class="task-pip"></div>Low-fat vs high-fat dairy</div>
+            <div class="card-task"><div class="task-pip"></div>Sweets &amp; ultra-processed foods</div>
           </div>
         </div>
         <div class="card-footer">
-          <span class="chip chip-teal">Clinician review</span>
-          <a href="dashboard.html" class="card-link">Full demo ›</a>
+          <span class="chip chip-teal">Tablet self-complete</span>
+          <span class="chip chip-blue" style="margin-left:4px;">Paper &rarr; Digital</span>
+          <a href="dietary-screener.html" class="card-link" style="margin-left:auto;">Tablet demo ›</a>
+          <a href="scan.html" class="card-link" style="margin-left:8px;">Scan demo ›</a>
         </div>
       </div>
 
@@ -744,6 +750,66 @@
         <div class="wf-title">Review, note, sign</div>
         <div class="wf-desc">Pre/post comparison generated automatically. AI draft note created. Clinician edits and signs. Record complete with full audit trail.</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI CLINICAL NOTE CALLOUT -->
+<section style="background: var(--navy-mid); padding: 56px 40px; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+  <div style="max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;">
+
+    <div>
+      <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px; font-weight: 600; color: var(--gold-soft); margin-bottom: 12px; font-family: var(--mono);">Step 04 output</div>
+      <div style="font-family: var(--serif); font-size: 26px; font-weight: 700; color: white; line-height: 1.25; margin-bottom: 16px;">AI-Assisted Clinician Draft Note</div>
+      <p style="font-size: 14px; color: rgba(255,255,255,0.4); line-height: 1.75; font-weight: 300;">
+        Once scores are confirmed, the system generates a structured draft note covering context, baseline, follow-up findings, pattern synthesis, and recommendations. The clinician edits and signs. Both draft and final versions are stored with a full audit trail.
+      </p>
+      <a href="dashboard.html" style="display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; font-size: 13px; font-weight: 600; color: var(--gold-soft); text-decoration: none; border-bottom: 1px solid rgba(200,160,80,0.3); padding-bottom: 2px; transition: border-color 0.15s;">View in clinician demo &#8594;</a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0; border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; overflow: hidden;">
+      <div style="background: rgba(0,0,0,0.2); padding: 12px 18px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); font-family: var(--mono);">What the note contains</div>
+
+      <div style="padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: flex-start; gap: 14px;">
+        <div style="width: 28px; height: 28px; border-radius: 5px; background: rgba(200,160,80,0.12); border: 1px solid rgba(200,160,80,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">📊</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: white; margin-bottom: 3px;">Built from structured score data only</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.55;">AI generates prose from confirmed numeric scores. No free-text clinical notes are read or processed.</div>
+        </div>
+      </div>
+
+      <div style="padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: flex-start; gap: 14px;">
+        <div style="width: 28px; height: 28px; border-radius: 5px; background: rgba(200,160,80,0.12); border: 1px solid rgba(200,160,80,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">🔢</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: white; margin-bottom: 3px;">AI is not involved in score calculation</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.55;">Scores are calculated deterministically from extracted responses. The AI only writes the summary after scores are locked.</div>
+        </div>
+      </div>
+
+      <div style="padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: flex-start; gap: 14px;">
+        <div style="width: 28px; height: 28px; border-radius: 5px; background: rgba(200,160,80,0.12); border: 1px solid rgba(200,160,80,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">✏️</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: white; margin-bottom: 3px;">Editable before finalisation</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.55;">The clinician reads, edits, and signs. The draft is never stored as a final record until the clinician explicitly approves it.</div>
+        </div>
+      </div>
+
+      <div style="padding: 15px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: flex-start; gap: 14px;">
+        <div style="width: 28px; height: 28px; border-radius: 5px; background: rgba(200,160,80,0.12); border: 1px solid rgba(200,160,80,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">📄</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: white; margin-bottom: 3px;">PDF and EMR export ready</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.55;">Signed notes export to PDF or push directly to the EMR. Format adapts to the receiving system's schema.</div>
+        </div>
+      </div>
+
+      <div style="padding: 15px 18px; display: flex; align-items: flex-start; gap: 14px;">
+        <div style="width: 28px; height: 28px; border-radius: 5px; background: rgba(200,160,80,0.12); border: 1px solid rgba(200,160,80,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px;">🔍</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: white; margin-bottom: 3px;">Audit log captures all versions</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.55;">Every draft, edit, and sign-off is timestamped and stored. The difference between AI draft and clinician final is always visible.</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -816,6 +882,7 @@
           <tr><td><strong>SAGE scoring</strong></td><td style="color:var(--text-light);">Clinician manually applies rubric across 12 tasks including drawn items</td><td class="savings-num">~15 min</td></tr>
           <tr><td><strong>GPCOG Part 1 + 2</strong></td><td style="color:var(--text-light);">Manual count, threshold check, informant interview collation</td><td class="savings-num">~5 min</td></tr>
           <tr><td><strong>CAQ administration</strong></td><td style="color:var(--text-light);">Paper handed out, collected, manually scored</td><td class="savings-num">~4 min</td></tr>
+          <tr><td><strong>DIS dietary screener</strong></td><td style="color:var(--text-light);">Paper distributed, collected, manually scored and noted for dietitian</td><td class="savings-num">~5 min</td></tr>
           <tr><td><strong>Photo to record transcription</strong></td><td style="color:var(--text-light);">Manual re-entry of responses across multiple forms — error-prone</td><td class="savings-num">~10 min</td></tr>
           <tr><td><strong>Pre/post comparison</strong></td><td style="color:var(--text-light);">Pull prior records, calculate deltas manually, check thresholds across all tests</td><td class="savings-num">~15 min</td></tr>
           <tr><td><strong>Assessment note drafting</strong></td><td style="color:var(--text-light);">Clinician writes full narrative from raw scores across multiple assessments</td><td class="savings-num">~25 min</td></tr>

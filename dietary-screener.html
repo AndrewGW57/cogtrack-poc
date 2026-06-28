@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogTrack — Dietary Intake Screener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1C2B3A;
+    --navy-light: #2A3F54;
+    --teal: #2A8C8C;
+    --teal-light: #3AACAC;
+    --teal-faint: #E8F5F5;
+    --amber: #E8A020;
+    --amber-faint: #FEF6E7;
+    --red: #C0392B;
+    --red-faint: #FDECEA;
+    --green: #27AE60;
+    --green-faint: #E9F7EF;
+    --orange: #D4691A;
+    --orange-faint: #FDF0E8;
+    --bg: #F0F4F8;
+    --white: #FFFFFF;
+    --border: #DDE3EA;
+    --text: #1C2B3A;
+    --text-mid: #4A5D6E;
+    --text-light: #7A8D9A;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* BRAND HEADER */
+  .brand-bar {
+    background: var(--navy);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 2px solid var(--teal);
+  }
+  .brand-logo { font-family: var(--mono); font-size: 18px; font-weight: 600; color: white; }
+  .brand-logo span { color: var(--teal-light); }
+  .brand-sep { color: rgba(255,255,255,0.2); font-size: 18px; }
+  .brand-form-name { font-size: 13px; color: var(--text-light); }
+  .brand-right { margin-left: auto; font-size: 12px; color: var(--text-light); font-family: var(--mono); }
+
+  /* PROGRESS BAR */
+  .progress-strip {
+    background: var(--navy-light);
+    height: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* MAIN SHELL */
+  .shell {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  /* INTRO SCREEN */
+  .intro-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 32px;
+    border: 1px solid var(--border);
+  }
+  .intro-eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-bottom: 10px;
+  }
+  .intro-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+  .intro-body {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-mid);
+    margin-bottom: 20px;
+  }
+  .intro-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-mid);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+  }
+  .meta-pill-icon { font-size: 15px; }
+
+  /* VIEW STATES */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* QUESTION CARD */
+  .q-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    border: 1px solid var(--border);
+    position: relative;
+    animation: fadeSlide 0.22s ease;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .q-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .q-counter {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    background: var(--navy);
+    padding: 3px 9px;
+    border-radius: 4px;
+  }
+  .q-section-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--teal);
+    font-weight: 600;
+  }
+  .q-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .q-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-mid);
+    margin-bottom: 14px;
+  }
+  .q-examples {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-light);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+  }
+  .q-examples strong { color: var(--text-mid); font-weight: 600; }
+
+  /* FREQUENCY OPTIONS — single column for longer labels */
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .opt-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--bg);
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    text-align: left;
+    font-family: var(--sans);
+    width: 100%;
+  }
+  .opt-btn:hover { border-color: var(--teal-light); background: var(--teal-faint); transform: translateY(-1px); }
+  .opt-btn.selected { border-color: var(--teal); background: var(--teal-faint); }
+  .opt-letter-badge {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--navy);
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .opt-btn.selected .opt-letter-badge {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: white;
+  }
+  .opt-main { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .opt-btn.selected .opt-main { color: var(--teal); }
+
+  /* NAV ROW */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; font-family: var(--sans); }
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:disabled { background: var(--border); color: var(--text-light); cursor: not-allowed; transform: none; }
+  .btn-ghost { background: none; border: 1.5px solid var(--border); color: var(--text-mid); }
+  .btn-navy { background: var(--navy); color: white; }
+  .q-progress-text { font-size: 12px; color: var(--text-light); margin-left: auto; font-family: var(--mono); }
+
+  /* PROGRESS DOTS */
+  .dots-row {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s, transform 0.2s;
+  }
+  .dot.answered { background: var(--teal); }
+  .dot.current { background: var(--navy); transform: scale(1.35); }
+
+  /* RESULTS VIEW */
+  .result-header {
+    background: var(--navy);
+    border-radius: 12px 12px 0 0;
+    padding: 28px 28px 24px;
+    text-align: center;
+    color: white;
+  }
+  .result-check { font-size: 36px; margin-bottom: 8px; }
+  .result-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); font-weight: 600; margin-bottom: 6px; }
+  .result-score { font-family: var(--mono); font-size: 56px; font-weight: 600; line-height: 1; color: white; }
+  .result-max { font-size: 20px; color: rgba(255,255,255,0.4); }
+  .result-band {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+  .band-optimal { background: rgba(39,174,96,0.2); color: #5DEFA0; }
+  .band-moderate { background: rgba(232,160,32,0.2); color: #FFD070; }
+  .band-poor { background: rgba(192,57,43,0.2); color: #FF9080; }
+
+  .result-body {
+    background: var(--white);
+    border-radius: 0 0 12px 12px;
+    border: 1px solid var(--border);
+    border-top: none;
+    overflow: hidden;
+  }
+
+  /* SCORE BREAKDOWN */
+  .breakdown-section { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .breakdown-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; color: var(--text-light); margin-bottom: 14px; }
+  .item-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .item-num { font-family: var(--mono); font-size: 11px; color: var(--text-light); width: 18px; flex-shrink: 0; }
+  .item-label { font-size: 13px; color: var(--text-mid); flex: 1; }
+  .item-answer { font-size: 12px; font-weight: 600; color: var(--text); min-width: 90px; }
+  .item-score {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .score-pos { background: var(--green-faint); color: var(--green); }
+  .score-neg { background: var(--red-faint); color: var(--red); }
+  .score-neu { background: var(--bg); color: var(--text-light); }
+
+  /* AI SUMMARY */
+  .ai-section { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+  .ai-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .ai-tag { background: var(--teal); color: white; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.5px; font-family: var(--mono); }
+  .ai-section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; color: var(--text-light); }
+  .ai-generating { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-light); padding: 8px 0; }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--teal-faint); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-text { font-size: 13.5px; line-height: 1.7; color: var(--text-mid); }
+  .ai-text p { margin-bottom: 10px; }
+  .ai-text p:last-child { margin-bottom: 0; }
+
+  /* NEXT STEPS */
+  .next-section { padding: 20px 24px; }
+  .next-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; color: var(--text-light); margin-bottom: 14px; }
+  .next-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--text-light);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* CHIP */
+  .chip { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 12px; padding: 3px 10px; }
+  .chip-green { background: var(--green-faint); color: var(--green); }
+  .chip-amber { background: var(--amber-faint); color: var(--amber); }
+  .chip-red { background: var(--red-faint); color: var(--red); }
+
+  /* THANK YOU VIEW */
+  .thankyou-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 48px 36px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  .ty-icon { font-size: 56px; margin-bottom: 20px; line-height: 1; }
+  .ty-title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.2; }
+  .ty-body { font-size: 15px; line-height: 1.7; color: var(--text-mid); margin-bottom: 28px; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .ty-instruction {
+    background: var(--teal-faint);
+    border: 1.5px solid var(--teal);
+    border-radius: 10px;
+    padding: 18px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--teal);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+  }
+  .ty-instruction-icon { font-size: 24px; flex-shrink: 0; }
+  .ty-clinician-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: var(--text-light);
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: border-color 0.15s, color 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ty-clinician-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+  /* PIN OVERLAY */
+  .pin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 18, 28, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .pin-overlay.visible { display: flex; }
+  .pin-modal {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 36px 32px;
+    width: 340px;
+    text-align: center;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    animation: pinSlide 0.2s ease;
+  }
+  @keyframes pinSlide { from { opacity:0; transform: scale(0.94) translateY(8px); } to { opacity:1; transform: scale(1) translateY(0); } }
+  .pin-lock-icon { font-size: 36px; margin-bottom: 12px; }
+  .pin-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .pin-sub { font-size: 13px; color: var(--text-light); margin-bottom: 24px; line-height: 1.5; }
+  .pin-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 8px; }
+  .pin-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .pin-dot.filled { background: var(--navy); border-color: var(--navy); }
+  .pin-dot.error { background: var(--red); border-color: var(--red); }
+  .pin-error-msg { font-size: 12px; color: var(--red); min-height: 18px; margin-bottom: 16px; font-weight: 500; }
+  .pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .pin-key {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 0;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.1s, transform 0.08s;
+    user-select: none;
+  }
+  .pin-key:hover { background: var(--teal-faint); border-color: var(--teal); }
+  .pin-key:active { transform: scale(0.93); background: var(--teal); color: white; border-color: var(--teal); }
+  .pin-key.del { font-size: 16px; color: var(--text-light); }
+  .pin-cancel { font-size: 13px; color: var(--text-light); background: none; border: none; cursor: pointer; font-family: var(--sans); padding: 6px; }
+  .pin-cancel:hover { color: var(--text); }
+
+  /* CLINICIAN RESULTS */
+  .clinician-bar {
+    background: var(--navy);
+    border-radius: 10px 10px 0 0;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .clinician-bar-title { font-size: 13px; font-weight: 600; color: white; }
+  .clinician-bar-sub { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .clinician-tag { background: var(--teal); color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 3px; font-family: var(--mono); letter-spacing: 0.5px; }
+  .lock-btn {
+    margin-left: auto;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--sans);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .lock-btn:hover { background: rgba(255,255,255,0.18); }
+
+  /* SCORE BAND VISUAL */
+  .band-bar-wrap {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+  }
+  .band-bar-track {
+    height: 10px;
+    border-radius: 5px;
+    background: linear-gradient(to right, var(--red) 0%, var(--amber) 40%, var(--green) 75%);
+    position: relative;
+    margin: 12px 0 6px;
+  }
+  .band-bar-marker {
+    position: absolute;
+    top: -5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--navy);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transform: translateX(-50%);
+    transition: left 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .band-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-light);
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<!-- PIN OVERLAY -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-modal">
+    <div class="pin-lock-icon">🔐</div>
+    <div class="pin-title">Clinician Access</div>
+    <div class="pin-sub">Enter your PIN to view results and continue to the assessment system.</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+      <div class="pin-dot" id="pd4"></div>
+    </div>
+    <div class="pin-error-msg" id="pin-error"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key" style="visibility:hidden;"></button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+    </div>
+    <button class="pin-cancel" onclick="closePIN()">Cancel</button>
+  </div>
+</div>
+
+<div class="brand-bar">
+  <a href="index.html" style="text-decoration:none;"><div class="brand-logo">Cog<span>Track</span></div></a>
+  <div class="brand-sep">|</div>
+  <div class="brand-form-name">Dietary Intake Screener</div>
+  <div class="brand-right">Patient Self-Report &nbsp;&middot;&nbsp; DIS-1.0</div>
+</div>
+<div class="progress-strip"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+
+<div class="shell">
+
+  <!-- INTRO -->
+  <div class="view active" id="view-intro">
+    <div class="intro-card">
+      <div class="intro-eyebrow">Self-report questionnaire</div>
+      <div class="intro-title">Dietary Intake Screener</div>
+      <div class="intro-body">
+        This questionnaire asks about your eating habits over the <strong>past month</strong>. There are 9 questions. For each food group, select the answer that best describes how often you eat it on average.<br><br>
+        Think about a typical week, not just recent days. Your answers go directly to your care team.
+      </div>
+      <div class="intro-meta">
+        <div class="meta-pill"><span class="meta-pill-icon">⏱</span> About 3 minutes</div>
+        <div class="meta-pill"><span class="meta-pill-icon">✎</span> 9 questions</div>
+        <div class="meta-pill"><span class="meta-pill-icon">🔒</span> Sent to your clinician</div>
+        <div class="meta-pill"><span class="meta-pill-icon">📅</span> Past month</div>
+      </div>
+      <button class="btn btn-primary" onclick="startForm()">Begin questionnaire &#8594;</button>
+    </div>
+  </div>
+
+  <!-- QUESTION VIEW -->
+  <div class="view" id="view-question">
+    <div class="dots-row" id="dots-row"></div>
+    <div id="q-card-wrap"></div>
+  </div>
+
+  <!-- THANK YOU VIEW -->
+  <div class="view" id="view-thankyou">
+    <div class="thankyou-card">
+      <div class="ty-icon">🙏</div>
+      <div class="ty-title">Thank you for completing the questionnaire</div>
+      <div class="ty-body">
+        Your answers have been saved and sent to your care team. There is nothing else you need to do right now.
+      </div>
+      <div class="ty-instruction">
+        <span class="ty-instruction-icon">🏥</span>
+        <span>Please hand the tablet back to your nurse or clinician.</span>
+      </div>
+      <button class="ty-clinician-btn" onclick="openPIN()">
+        🔐 Clinician — tap here to continue
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS VIEW -->
+  <div class="view" id="view-results">
+    <div class="clinician-bar">
+      <span class="clinician-tag">CLINICIAN VIEW</span>
+      <div>
+        <div class="clinician-bar-title">DIS Results — Margaret Thornton</div>
+        <div class="clinician-bar-sub">Scores not shown to patient &nbsp;·&nbsp; PIN-protected access</div>
+      </div>
+      <button class="lock-btn" onclick="lockResults()">🔒 Lock &amp; return tablet</button>
+    </div>
+    <div id="results-wrap"></div>
+    <div class="disclaimer">
+      For demonstration purposes only. This is not a diagnostic tool. Results are for clinician review only and do not constitute clinical nutrition advice or a treatment recommendation.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// PIN GATE
+const CORRECT_PIN = '12345';
+let pinEntry = '';
+
+function openPIN() {
+  pinEntry = '';
+  updatePinDots(false);
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.add('visible');
+}
+
+function closePIN() {
+  document.getElementById('pin-overlay').classList.remove('visible');
+  pinEntry = '';
+  updatePinDots(false);
+}
+
+function pinKey(digit) {
+  if (pinEntry.length >= 5) return;
+  pinEntry += digit;
+  updatePinDots(false);
+  document.getElementById('pin-error').textContent = '';
+  if (pinEntry.length === 5) {
+    setTimeout(checkPIN, 120);
+  }
+}
+
+function pinDel() {
+  if (pinEntry.length === 0) return;
+  pinEntry = pinEntry.slice(0, -1);
+  updatePinDots(false);
+}
+
+function updatePinDots(error) {
+  for (let i = 0; i < 5; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.className = 'pin-dot';
+    if (error) { dot.classList.add('error'); }
+    else if (i < pinEntry.length) { dot.classList.add('filled'); }
+  }
+}
+
+function checkPIN() {
+  if (pinEntry === CORRECT_PIN) {
+    document.getElementById('pin-overlay').classList.remove('visible');
+    pinEntry = '';
+    updatePinDots(false);
+    showResults();
+  } else {
+    updatePinDots(true);
+    document.getElementById('pin-error').textContent = 'Incorrect PIN. Please try again.';
+    pinEntry = '';
+    setTimeout(() => { updatePinDots(false); }, 700);
+  }
+}
+
+function lockResults() {
+  answers = new Array(9).fill(null);
+  currentQ = 0;
+  showView('view-intro');
+  document.getElementById('progress-fill').style.width = '0%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// FREQUENCY SCALE — same 9 options for all questions
+// Scoring: options map to a 0–8 scale
+// For positive foods (Q1–Q7): higher = better
+// For negative foods (Q8–Q9): higher = worse (score inverted for dietary quality)
+const FREQ_OPTIONS = [
+  { label: 'I do not eat this at all', score: 0 },
+  { label: 'Less than once a week', score: 1 },
+  { label: '1–2 times per week', score: 2 },
+  { label: '3–4 times per week', score: 3 },
+  { label: '5–6 times per week', score: 4 },
+  { label: 'Once a day', score: 5 },
+  { label: '2–3 times per day', score: 6 },
+  { label: '4–5 times per day', score: 7 },
+  { label: '6 or more times per day', score: 8 }
+];
+
+const QUESTIONS = [
+  {
+    num: 1,
+    section: 'Fruits & Vegetables',
+    title: 'Fresh fruits',
+    body: 'How often do you eat fresh fruits?',
+    examples: 'Apples, bananas, pears, oranges, grapes, strawberries, blueberries, etc. Include fresh fruits and frozen fruits with no added sugar. Do not include preserved or dried fruits, or fruit juice.',
+    direction: 'positive'
+  },
+  {
+    num: 2,
+    section: 'Fruits & Vegetables',
+    title: 'Vegetables',
+    body: 'How often do you eat vegetables?',
+    examples: 'Tomatoes, peppers, cucumbers, broccoli, carrots, green beans, cabbage, spinach, arugula, and other leafy vegetables. Include raw or cooked non-starchy vegetables. Do not include starchy vegetables such as potatoes, or fried vegetables.',
+    direction: 'positive'
+  },
+  {
+    num: 3,
+    section: 'Proteins & Legumes',
+    title: 'Legumes, nuts, and seeds',
+    body: 'How often do you eat legumes, nuts, and seeds?',
+    examples: 'Legumes: cooked or canned beans, lentils, chickpeas or peas, miso, tofu, tempeh, hummus. Nuts: almonds, walnuts, hazelnuts, peanuts, etc. Seeds: sesame, sunflower, pumpkin, flax seeds, etc.',
+    direction: 'positive'
+  },
+  {
+    num: 4,
+    section: 'Proteins & Legumes',
+    title: 'Fish and seafood',
+    body: 'How often do you eat fish or seafood?',
+    examples: 'Fresh fish or sea water fish such as salmon, sardines, trout, Atlantic or Pacific mackerel, and seafood. Include canned fish and seafood in your estimate.',
+    direction: 'positive'
+  },
+  {
+    num: 5,
+    section: 'Grains',
+    title: 'Whole grains',
+    body: 'How often do you eat whole grains?',
+    examples: 'Whole grain bread, whole grain bread rolls, muesli, unsweetened ready-to-eat cereal, cooked grits or porridge, brown rice, whole grain pasta, corn tortilla. Do not include white bread, white roll or bagels, white rice or pasta, or wheat tortilla.',
+    direction: 'positive'
+  },
+  {
+    num: 6,
+    section: 'Grains',
+    title: 'Refined grains',
+    body: 'How often do you eat refined grains?',
+    examples: 'White bread, white roll, bagel or English muffin, white rice or pasta, wheat tortilla. Do not include whole grains considered in the previous question.',
+    direction: 'negative'
+  },
+  {
+    num: 7,
+    section: 'Dairy',
+    title: 'Low-fat dairy',
+    body: 'How often do you eat low-fat dairy?',
+    examples: 'Low-fat milk (1% or fat-free / skim milk or soy milk), yogurt with reduced fat content, low-fat cheese, mozzarella, cottage cheese.',
+    direction: 'positive'
+  },
+  {
+    num: 8,
+    section: 'Dairy',
+    title: 'High-fat dairy and saturated fats',
+    body: 'How often do you eat high-fat dairy and saturated fats?',
+    examples: '2% milk or whole milk, butter, cream, cream cheese, cheese with not reduced-fat content, yogurt with 2% or higher milk fat, ice cream. Butter, coconut oil or shortening used for cooking. Do not include low-fat dairy from the previous question.',
+    direction: 'negative'
+  },
+  {
+    num: 9,
+    section: 'Sweets',
+    title: 'Sweets and sweet foods',
+    body: 'How often do you eat sweets and sweet foods?',
+    examples: 'Commercial sweets, candies, cookies, cakes, pastries, sweet snacks.',
+    direction: 'negative'
+  }
+];
+
+const LETTERS = ['A','B','C','D','E','F','G','H','I'];
+// Demo baseline (option indices 0–8 per question)
+const BASELINE = [4, 3, 2, 2, 3, 4, 3, 4, 3];
+
+let answers = new Array(9).fill(null);
+let currentQ = 0;
+
+function getDietaryScore(answers) {
+  // Positive questions: Q1–Q5, Q7 — score = option index (0–8)
+  // Negative questions: Q6, Q8, Q9 — score = 8 - option index (inverted)
+  let total = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (answers[i] === null) return;
+    if (q.direction === 'positive') {
+      total += answers[i];
+    } else {
+      total += (8 - answers[i]);
+    }
+  });
+  return total; // max = 9 * 8 = 72
+}
+
+function getBand(score) {
+  // 0–72 scale; thresholds approximate for demo
+  if (score >= 45) return { label: 'Good dietary quality', cls: 'band-optimal', chipCls: 'chip-green' };
+  if (score >= 25) return { label: 'Moderate dietary quality', cls: 'band-moderate', chipCls: 'chip-amber' };
+  return { label: 'Low dietary quality', cls: 'band-poor', chipCls: 'chip-red' };
+}
+
+function startForm() {
+  showView('view-question');
+  renderDots();
+  renderQuestion(0);
+  updateProgress();
+}
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderDots() {
+  const container = document.getElementById('dots-row');
+  container.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === currentQ ? ' current' : '') + (answers[i] !== null && i !== currentQ ? ' answered' : '');
+    d.id = 'dot-' + i;
+    container.appendChild(d);
+  }
+}
+
+function updateDots() {
+  for (let i = 0; i < 9; i++) {
+    const d = document.getElementById('dot-' + i);
+    if (!d) continue;
+    d.className = 'dot';
+    if (i === currentQ) d.classList.add('current');
+    else if (answers[i] !== null) d.classList.add('answered');
+  }
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const pct = Math.round((answered / 9) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const wrap = document.getElementById('q-card-wrap');
+  const selectedIdx = answers[idx];
+
+  wrap.innerHTML = `
+    <div class="q-card">
+      <div class="q-eyebrow">
+        <div class="q-counter">${idx + 1} / 9</div>
+        <div class="q-section-tag">${q.section}</div>
+      </div>
+      <div class="q-title">${q.title}</div>
+      <div class="q-body">${q.body}</div>
+      <div class="q-examples"><strong>Examples:</strong> ${q.examples}</div>
+      <div class="options-list" id="options-list">
+        ${FREQ_OPTIONS.map((opt, i) => `
+          <button class="opt-btn ${selectedIdx === i ? 'selected' : ''}" onclick="selectAnswer(${i})">
+            <div class="opt-letter-badge">${LETTERS[i]}</div>
+            <div class="opt-main">${opt.label}</div>
+          </button>
+        `).join('')}
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="prevQ()" ${idx === 0 ? 'style="visibility:hidden"' : ''}>&#8592; Back</button>
+        <button class="btn btn-primary" id="next-btn" onclick="nextQ()" ${selectedIdx === null ? 'disabled' : ''}>
+          ${idx === 8 ? 'See my results &#8594;' : 'Next &#8594;'}
+        </button>
+        <div class="q-progress-text">${answers.filter(a => a !== null).length} / 9 answered</div>
+      </div>
+    </div>
+  `;
+}
+
+function selectAnswer(optIdx) {
+  answers[currentQ] = optIdx;
+  updateProgress();
+  updateDots();
+  renderQuestion(currentQ);
+}
+
+function nextQ() {
+  if (answers[currentQ] === null) return;
+  if (currentQ === 8) {
+    showThankYou();
+    return;
+  }
+  currentQ++;
+  updateDots();
+  renderQuestion(currentQ);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevQ() {
+  if (currentQ === 0) return;
+  currentQ--;
+  updateDots();
+  renderQuestion(currentQ);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showThankYou() {
+  document.getElementById('progress-fill').style.width = '100%';
+  showView('view-thankyou');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showResults() {
+  const score = getDietaryScore(answers);
+  const band = getBand(score);
+  const baselineScore = getDietaryScore(BASELINE);
+  const baselineBand = getBand(baselineScore);
+  const delta = score - baselineScore;
+  const improved = delta > 0;
+  const pct = Math.round((score / 72) * 100);
+
+  showView('view-results');
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const breakdownRows = QUESTIONS.map((q, i) => {
+    const ans = answers[i];
+    const ansLabel = ans !== null ? FREQ_OPTIONS[ans].label : 'Not answered';
+    const isPos = q.direction === 'positive';
+    const itemScore = ans !== null ? (isPos ? ans : 8 - ans) : 0;
+    const scoreClass = itemScore >= 5 ? 'score-pos' : itemScore >= 3 ? 'score-neu' : 'score-neg';
+    return `
+      <div class="item-row">
+        <div class="item-num">${i + 1}.</div>
+        <div class="item-label">${q.title}</div>
+        <div class="item-answer">${ansLabel}</div>
+        <div class="item-score ${scoreClass}">${itemScore}/8</div>
+      </div>
+    `;
+  }).join('');
+
+  const wrap = document.getElementById('results-wrap');
+  wrap.innerHTML = `
+    <div style="border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+      <div class="result-header">
+        <div class="result-check">✓</div>
+        <div class="result-label">Dietary quality score</div>
+        <div class="result-score">${score}<span class="result-max"> / 72</span></div>
+        <div><span class="result-band ${band.cls}">${band.label}</span></div>
+      </div>
+      <div class="result-body">
+
+        <!-- SCORE BAR -->
+        <div class="breakdown-section">
+          <div class="breakdown-title">Dietary quality indicator</div>
+          <div class="band-bar-wrap">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-mid); font-weight:600;">
+              <span>${band.label}</span>
+              <span style="font-family:var(--mono);">${score} / 72</span>
+            </div>
+            <div class="band-bar-track">
+              <div class="band-bar-marker" style="left:${pct}%;"></div>
+            </div>
+            <div class="band-labels">
+              <span>Low quality</span>
+              <span>Moderate</span>
+              <span>Good quality</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; margin-top:10px;">
+            <span style="font-size:13px; color:var(--text-mid);">vs. previous visit (${baselineScore}/72):</span>
+            <span style="font-family:var(--mono); font-size:13px; font-weight:700; color:${improved ? 'var(--green)' : delta < 0 ? 'var(--red)' : 'var(--text-light)'};">
+              ${improved ? '+' : ''}${delta} points
+            </span>
+            <span class="chip ${band.chipCls}">${band.label}</span>
+          </div>
+        </div>
+
+        <!-- BREAKDOWN -->
+        <div class="breakdown-section">
+          <div class="breakdown-title">Question-by-question breakdown</div>
+          ${breakdownRows}
+        </div>
+
+        <!-- AI SUMMARY -->
+        <div class="ai-section">
+          <div class="ai-section-header">
+            <span class="ai-tag">AI DRAFT</span>
+            <div class="ai-section-title">Clinician summary — generated for review</div>
+          </div>
+          <div class="ai-generating" id="ai-generating">
+            <div class="spinner"></div>
+            Generating summary from your responses...
+          </div>
+          <div class="ai-text" id="ai-text" style="display:none;"></div>
+        </div>
+
+        <!-- NEXT STEPS -->
+        <div class="next-section">
+          <div class="next-title">Clinician actions</div>
+          <div class="next-row">
+            <button class="btn btn-navy" onclick="lockResults()">🔒 Lock &amp; start new patient</button>
+            <button class="btn btn-ghost">View in assessment system</button>
+            <button class="btn btn-ghost">Export PDF</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  setTimeout(() => { generateAISummary(score, band, baselineScore, baselineBand, delta, improved); }, 1400);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function generateAISummary(score, band, baselineScore, baselineBand, delta, improved) {
+  const goodAreas = [];
+  const poorAreas = [];
+
+  QUESTIONS.forEach((q, i) => {
+    const ans = answers[i];
+    if (ans === null) return;
+    const itemScore = q.direction === 'positive' ? ans : 8 - ans;
+    if (itemScore >= 5) goodAreas.push(q.title.toLowerCase());
+    if (itemScore <= 2) poorAreas.push(q.title.toLowerCase());
+  });
+
+  let trend = '';
+  if (improved) {
+    trend = `Compared with the previous visit (score ${baselineScore}/72, ${baselineBand.label.toLowerCase()}), the patient reports a ${Math.abs(delta)}-point improvement in dietary quality score, now within the ${band.label.toLowerCase()} range.`;
+  } else if (delta === 0) {
+    trend = `The patient's dietary quality score is unchanged from the previous visit (${baselineScore}/72), remaining in the ${band.label.toLowerCase()} range.`;
+  } else {
+    trend = `Compared with the previous visit (score ${baselineScore}/72, ${baselineBand.label.toLowerCase()}), the patient's dietary quality score has decreased by ${Math.abs(delta)} points, moving into the ${band.label.toLowerCase()} range.`;
+  }
+
+  let areas = '';
+  if (goodAreas.length > 0) {
+    areas += `Strong intake reported for: ${goodAreas.slice(0,3).join(', ')}. `;
+  }
+  if (poorAreas.length > 0) {
+    areas += `Low intake or poor quality reported for: ${poorAreas.slice(0,3).join(', ')}.`;
+  }
+
+  const rec = score >= 45
+    ? 'Dietary quality is within the good range. Routine monitoring at scheduled intervals is appropriate. Reinforce positive patterns at the next consultation.'
+    : score >= 25
+    ? 'Dietary quality is moderate. Consider referral to the dietitian for a full dietary assessment, with particular attention to food groups where intake appears low or of poor quality.'
+    : 'Dietary quality is in the low range. A dietitian referral is recommended before the next treatment session. Specific intervention around food group variety and quality is appropriate.';
+
+  const summaryHTML = `
+    <p>Patient self-report dietary screener (DIS-1.0) completed on current visit. Total dietary quality score: <strong>${score}/72</strong> — <strong>${band.label}</strong>.</p>
+    <p>${trend}</p>
+    ${areas ? `<p>${areas}</p>` : ''}
+    <p>${rec}</p>
+    <p style="font-size: 12px; color: var(--text-light); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px;">This summary was generated automatically from structured patient responses and is intended for clinician review only. It does not constitute clinical nutrition advice or a diagnosis.</p>
+  `;
+
+  document.getElementById('ai-generating').style.display = 'none';
+  const textEl = document.getElementById('ai-text');
+  textEl.innerHTML = summaryHTML;
+  textEl.style.display = 'block';
+}
+</script>
+
+</body>
+</html>

@@ -343,6 +343,20 @@
           </div>
         </div>
 
+        <div class="form-type-card" id="card-dis" onclick="selectFormType('dis')">
+          <span class="selected-tick">✓</span>
+          <div class="form-type-icon">🥗</div>
+          <div class="form-type-name">DIS-1.0 — Dietary Intake Screener</div>
+          <div class="form-type-code">Patient-completed — 9-question frequency scale</div>
+          <div class="form-type-desc">Patient self-report on dietary frequency across 5 food groups. Extracts circled A–I bubble answers for all 9 questions, applies positive/negative item weighting, and calculates dietary quality score (0–72) and band classification.</div>
+          <div class="form-type-meta">
+            <span class="form-meta-pill">9 questions</span>
+            <span class="form-meta-pill">A–I options</span>
+            <span class="form-meta-pill">Max 72 pts</span>
+            <span class="form-meta-pill">Dietitian module</span>
+          </div>
+        </div>
+
       </div>
 
       <div class="action-row">
@@ -925,6 +939,84 @@ const FORM_TYPES = {
         ]
       }
     ]
+  },
+
+  dis: {
+    name: 'DIS-1.0 — Dietary Intake Screener',
+    code: 'DIS-1.0',
+    demoDesc: 'Uses a pre-loaded completed DIS form (Margaret Thornton, follow-up visit 15 Jul 2026). Patient circled answers indicating moderate dietary quality with low fish/seafood and high refined grain intake.',
+    procLabel: 'Reading DIS dietary screener form...',
+    procSteps: [
+      'Image received and pre-processed',
+      'DIS-1.0 form structure identified — 9-question layout, 5 sections detected',
+      'Locating A–I answer bubbles for Section 1: Fruits & Vegetables (Q1–Q2)',
+      'Locating A–I answer bubbles for Section 2: Proteins & Legumes (Q3–Q4)',
+      'Locating A–I answer bubbles for Section 3: Grains (Q5–Q6)',
+      'Locating A–I answer bubbles for Section 4: Dairy (Q7–Q8)',
+      'Locating A–I answer bubbles for Section 5: Sweets (Q9)',
+      'Extracting patient header and date',
+      'Mapping A–I selections to 0–8 frequency scores',
+      'Applying positive/negative item weighting (Q6, Q8, Q9 inverted)',
+      'Calculating dietary quality total and band classification',
+    ],
+    extractSummary: '14 of 14 fields extracted. All answer bubbles identified with high confidence. No fields flagged for review.',
+    totalLabel: 'Dietary Quality Score',
+    totalScore: '38 / 72',
+    timeLabel: '4.1s',
+    scoreClass: 'chip-amber',
+    bandText: 'Moderate dietary quality (score 25–44)',
+    sections: [
+      {
+        label: 'Patient Header',
+        fields: [
+          { name: 'Patient Name', extracted: 'Margaret Thornton', raw: 'Handwritten: "Margaret Thornton"', conf: 98, level: 'high', chip: null },
+          { name: 'Visit Date',   extracted: '15 Jul 2026',        raw: 'Handwritten: "15/07/2026"',        conf: 99, level: 'high', chip: null },
+          { name: 'Visit / Timepoint', extracted: 'Follow-up 1',  raw: 'Handwritten: "Follow-up 1"',        conf: 93, level: 'high', chip: null },
+        ]
+      },
+      {
+        label: 'Section 1 — Fruits & Vegetables',
+        fields: [
+          { name: 'Q1 — Fresh fruits',    extracted: 'F — Once a day',         raw: 'Bubble F circled', conf: 95, level: 'high', chip: 'chip-green',  score: 5 },
+          { name: 'Q2 — Vegetables',      extracted: 'E — 5–6 times per week', raw: 'Bubble E circled', conf: 93, level: 'high', chip: 'chip-green',  score: 4 },
+        ]
+      },
+      {
+        label: 'Section 2 — Proteins & Legumes',
+        fields: [
+          { name: 'Q3 — Legumes, nuts, seeds', extracted: 'C — 1–2 times per week',      raw: 'Bubble C circled', conf: 91, level: 'high', chip: 'chip-amber', score: 2 },
+          { name: 'Q4 — Fish or seafood',       extracted: 'B — Less than once a week',   raw: 'Bubble B circled', conf: 89, level: 'high', chip: 'chip-red',   score: 1 },
+        ]
+      },
+      {
+        label: 'Section 3 — Grains',
+        fields: [
+          { name: 'Q5 — Whole grains',   extracted: 'D — 3–4 times per week', raw: 'Bubble D circled', conf: 94, level: 'high', chip: 'chip-amber', score: 3 },
+          { name: 'Q6 — Refined grains', extracted: 'F — Once a day',         raw: 'Bubble F circled', conf: 90, level: 'high', chip: 'chip-red',   score: 3, note: 'Negative item — score inverted (8 − 5 = 3)' },
+        ]
+      },
+      {
+        label: 'Section 4 — Dairy',
+        fields: [
+          { name: 'Q7 — Low-fat dairy',             extracted: 'D — 3–4 times per week', raw: 'Bubble D circled', conf: 92, level: 'high', chip: 'chip-amber', score: 3 },
+          { name: 'Q8 — High-fat dairy & sat. fats', extracted: 'C — 1–2 times per week', raw: 'Bubble C circled', conf: 88, level: 'high', chip: 'chip-green',  score: 6, note: 'Negative item — score inverted (8 − 2 = 6)' },
+        ]
+      },
+      {
+        label: 'Section 5 — Sweets',
+        fields: [
+          { name: 'Q9 — Sweets and sweet foods', extracted: 'D — 3–4 times per week', raw: 'Bubble D circled', conf: 91, level: 'high', chip: 'chip-amber', score: 5, note: 'Negative item — score inverted (8 − 3 = 5)' },
+        ]
+      },
+      {
+        label: 'Auto-Calculated Results',
+        fields: [
+          { name: 'Dietary quality score (sum Q1–Q9)', extracted: '38 / 72', raw: 'Auto-calculated from 9 weighted item scores', conf: 100, level: 'high', chip: 'chip-amber' },
+          { name: 'Score band classification', extracted: 'Moderate dietary quality', raw: 'Score 38 falls in 25–44 band', conf: 100, level: 'high', chip: 'chip-amber' },
+          { name: 'Handwritten score (cross-check)', extracted: '38 / 72', raw: 'Handwritten total matches auto-calculated ✓', conf: 96, level: 'high', chip: null },
+        ]
+      }
+    ]
   }
 };
 
@@ -1353,6 +1445,74 @@ function renderPaperForm(ft) {
         <div><div style="font-size:8px;font-weight:bold;">TOTAL SCORE:</div>
         <span class="pr-hw-red" style="font-size:14px;">22 / 30</span>
         <div style="font-size:7px;color:#888;">18–30: High difficulty — clinician review</div></div>
+        <div style="text-align:right;font-size:8px;color:#999;">Patient signature:<br><span class="pr-hw" style="font-size:10px;">M. Thornton</span></div>
+      </div>`;
+
+  } else if (selectedType === 'dis') {
+    // DIS paper render
+    const disSections = [
+      { label: 'Section 1 — Fruits & Vegetables', qs: [
+        { num: 1, title: 'Fresh fruits',    ans: 'F', neg: false },
+        { num: 2, title: 'Vegetables',      ans: 'E', neg: false },
+      ]},
+      { label: 'Section 2 — Proteins & Legumes', qs: [
+        { num: 3, title: 'Legumes, nuts and seeds', ans: 'C', neg: false },
+        { num: 4, title: 'Fish or seafood',          ans: 'B', neg: false },
+      ]},
+      { label: 'Section 3 — Grains', qs: [
+        { num: 5, title: 'Whole grains',   ans: 'D', neg: false },
+        { num: 6, title: 'Refined grains', ans: 'F', neg: true  },
+      ]},
+      { label: 'Section 4 — Dairy', qs: [
+        { num: 7, title: 'Low-fat dairy',                    ans: 'D', neg: false },
+        { num: 8, title: 'High-fat dairy & saturated fats',  ans: 'C', neg: true  },
+      ]},
+      { label: 'Section 5 — Sweets', qs: [
+        { num: 9, title: 'Sweets and sweet foods', ans: 'D', neg: true },
+      ]},
+    ];
+    const freqOpts = ['A','B','C','D','E','F','G','H','I'];
+    const freqLabels = ['Not at all','<1/wk','1–2/wk','3–4/wk','5–6/wk','1/day','2–3/day','4–5/day','6+/day'];
+
+    html += `
+      <div class="pr-title">Dietary Intake Screener — DIS-1.0</div>
+      <div class="pr-sub">Patient self-report · For demonstration only · Results reviewed by care team</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;border:1px solid #ccc;padding:5px;margin-bottom:8px;font-size:9px;">
+        <div><b>Patient:</b> <span class="pr-hw">Margaret Thornton</span></div>
+        <div><b>Date:</b> <span class="pr-hw">15/07/2026</span></div>
+        <div><b>Visit:</b> <span class="pr-hw">Follow-up 1</span></div>
+      </div>
+      <div style="background:#F5F5F0;border-left:2px solid #2A8C8C;padding:4px 8px;font-size:8px;color:#333;margin-bottom:8px;">
+        Think about your eating habits over the <b>past month</b>. Circle one bubble per question.
+      </div>`;
+
+    disSections.forEach(sec => {
+      html += `<div class="pr-section">${sec.label}</div>`;
+      sec.qs.forEach(q => {
+        html += `<div class="pr-row" style="margin-bottom:5px;">
+          <span class="pr-num">${q.num}.</span>
+          <div class="pr-q"><b>${q.title}</b>${q.neg ? ' <span style="font-size:7px;color:#B03020;">(↑ freq = lower score)</span>' : ''}
+            <div style="display:grid;grid-template-columns:repeat(9,1fr);gap:1px;margin-top:3px;border:1px solid #ccc;">
+              ${freqOpts.map((letter, idx) => {
+                const sel = letter === q.ans;
+                return `<div style="padding:2px 1px;border-right:1px solid #ddd;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:7px;background:${sel?'#EEF5FF':'#FAFAFA'};">
+                  <div style="width:8px;height:8px;border-radius:50%;border:1px solid #888;background:${sel?'#1C2B3A':'white'};"></div>
+                  <span style="font-weight:${sel?'bold':'normal'};color:${sel?'#1C2B3A':'#555'}">${letter}</span>
+                  <span style="font-size:6px;color:#888;text-align:center;line-height:1.1;">${freqLabels[idx]}</span>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>`;
+      });
+    });
+
+    html += `<div style="margin-top:10px;padding-top:7px;border-top:2px solid #333;display:flex;justify-content:space-between;align-items:flex-end;">
+        <div>
+          <div style="font-size:8px;font-weight:bold;">DIETARY QUALITY SCORE (clinician use only):</div>
+          <span class="pr-hw-red" style="font-size:14px;">38 / 72</span>
+          <div style="font-size:7px;color:#888;">25–44: Moderate dietary quality</div>
+        </div>
         <div style="text-align:right;font-size:8px;color:#999;">Patient signature:<br><span class="pr-hw" style="font-size:10px;">M. Thornton</span></div>
       </div>`;
   }

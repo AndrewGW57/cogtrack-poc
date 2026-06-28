@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogTrack — DIS-1.0 Paper Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1C2B3A;
+    --navy-light: #2A3F54;
+    --teal: #2A8C8C;
+    --teal-light: #3AACAC;
+    --teal-faint: #E8F5F5;
+    --amber: #E8A020;
+    --red: #C0392B;
+    --green: #27AE60;
+    --bg: #F0F4F8;
+    --white: #FFFFFF;
+    --border: #DDE3EA;
+    --text: #1C2B3A;
+    --text-mid: #4A5D6E;
+    --text-light: #7A8D9A;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* SCREEN HEADER */
+  .brand-bar {
+    background: var(--navy);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 2px solid var(--teal);
+  }
+  .brand-logo { font-family: var(--mono); font-size: 18px; font-weight: 600; color: white; }
+  .brand-logo span { color: var(--teal-light); }
+  .brand-sep { color: rgba(255,255,255,0.2); font-size: 18px; }
+  .brand-form-name { font-size: 13px; color: var(--text-light); }
+  .brand-right { margin-left: auto; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 7px; font-size: 13px;
+    font-weight: 600; cursor: pointer; border: none;
+    transition: opacity 0.15s; font-family: var(--sans);
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn-ghost { background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2); color: white; }
+
+  /* SCREEN SHELL */
+  .screen-shell {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+
+  .screen-intro {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .screen-intro-icon { font-size: 28px; flex-shrink: 0; }
+  .screen-intro-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .screen-intro-body { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+
+  /* PRINT CONTROLS */
+  .print-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-print {
+    background: var(--teal);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: var(--sans);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.15s;
+  }
+  .btn-print:hover { opacity: 0.88; }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--text-mid);
+    padding: 10px 20px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    font-family: var(--sans);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--teal); color: var(--teal); }
+  .print-hint { font-size: 12px; color: var(--text-light); margin-left: auto; }
+
+  /* PAPER FORM PREVIEW */
+  .paper-preview-wrap {
+    background: #CBCFC5;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  /* THE PAPER FORM ITSELF */
+  .paper-form {
+    background: white;
+    width: 100%;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10px;
+    padding: 24px 28px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    line-height: 1.5;
+    color: #111;
+    position: relative;
+  }
+
+  /* HEADER BLOCK */
+  .pf-header {
+    text-align: center;
+    border-bottom: 2px solid #1C2B3A;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+  }
+  .pf-logo-line {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    color: #1C2B3A;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+  .pf-logo-line span { color: #2A8C8C; }
+  .pf-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1C2B3A;
+    margin-bottom: 2px;
+  }
+  .pf-subtitle {
+    font-size: 8.5px;
+    color: #555;
+    letter-spacing: 0.3px;
+  }
+
+  /* PATIENT INFO BOX */
+  .pf-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+    border: 1px solid #bbb;
+    padding: 6px 8px;
+    margin-bottom: 10px;
+    font-size: 9px;
+  }
+  .pf-info-field { display: flex; align-items: center; gap: 4px; }
+  .pf-info-label { font-weight: bold; white-space: nowrap; color: #333; }
+  .pf-info-line {
+    flex: 1;
+    border-bottom: 1px solid #999;
+    height: 14px;
+    min-width: 50px;
+  }
+
+  /* INSTRUCTION BOX */
+  .pf-instruction {
+    background: #F5F5F0;
+    border: 1px solid #ccc;
+    border-left: 3px solid #2A8C8C;
+    padding: 6px 10px;
+    font-size: 8.5px;
+    line-height: 1.55;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  .pf-instruction strong { color: #1C2B3A; }
+
+  /* SECTION HEADER */
+  .pf-section {
+    font-size: 8.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2A7070;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 2px;
+    margin: 10px 0 6px;
+  }
+
+  /* QUESTION ROW */
+  .pf-q-block {
+    margin-bottom: 9px;
+    page-break-inside: avoid;
+  }
+  .pf-q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 3px;
+  }
+  .pf-q-num {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    font-weight: bold;
+    color: #2A7070;
+    min-width: 16px;
+    flex-shrink: 0;
+  }
+  .pf-q-text {
+    font-size: 9.5px;
+    font-weight: bold;
+    color: #111;
+    line-height: 1.35;
+  }
+  .pf-q-examples {
+    font-size: 8px;
+    color: #555;
+    line-height: 1.45;
+    margin: 2px 0 4px 21px;
+    font-style: italic;
+  }
+
+  /* FREQUENCY OPTION GRID — 3 columns to fit 9 options */
+  .pf-opts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-left: 20px;
+  }
+  .pf-opt {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px;
+    border: 1px solid #ddd;
+    font-size: 8px;
+    background: #FAFAFA;
+  }
+  .pf-bubble {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid #888;
+    flex-shrink: 0;
+    background: white;
+  }
+  .pf-opt-label { color: #333; }
+  .pf-opt-letter {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #2A7070;
+    margin-right: 1px;
+  }
+
+  /* DIRECTION NOTE */
+  .pf-direction-note {
+    font-size: 7.5px;
+    color: #888;
+    margin: 1px 0 2px 20px;
+    font-style: italic;
+  }
+  .pf-direction-note.neg { color: #B03020; }
+
+  /* FOOTER SCORE BOX */
+  .pf-score-box {
+    margin-top: 14px;
+    border-top: 2px solid #1C2B3A;
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .pf-score-label { font-size: 8px; font-weight: bold; color: #333; margin-bottom: 3px; }
+  .pf-score-value {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1C2B3A;
+  }
+  .pf-score-band { font-size: 7px; color: #666; margin-top: 2px; }
+  .pf-sig-block { text-align: right; }
+  .pf-sig-label { font-size: 8px; color: #666; margin-bottom: 16px; }
+  .pf-sig-name {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 13px;
+    color: #1C2B3A;
+    border-bottom: 1px solid #999;
+    padding-bottom: 2px;
+  }
+
+  /* PAPER FOOTER */
+  .pf-footer {
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 7px;
+    color: #aaa;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* PRINT STYLES */
+  @media print {
+    body { background: white !important; }
+    .brand-bar, .screen-intro, .print-controls, .screen-intro { display: none !important; }
+    .paper-preview-wrap { background: none !important; padding: 0 !important; box-shadow: none !important; }
+    .screen-shell { padding: 0 !important; max-width: 100% !important; }
+    .paper-form { box-shadow: none !important; padding: 16px 20px !important; }
+    @page { margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand-bar">
+  <a href="index.html" style="text-decoration:none;"><div class="brand-logo">Cog<span>Track</span></div></a>
+  <div class="brand-sep">|</div>
+  <div class="brand-form-name">DIS-1.0 — Dietary Intake Screener (Paper Form)</div>
+  <div class="brand-right">
+    <button class="btn btn-ghost" onclick="window.history.back()">&#8592; Back</button>
+  </div>
+</div>
+
+<div class="screen-shell">
+
+  <div class="screen-intro">
+    <div class="screen-intro-icon">📋</div>
+    <div>
+      <div class="screen-intro-title">Dietary Intake Screener — Printable Paper Form</div>
+      <div class="screen-intro-body">
+        Print this form for patients who prefer pen-and-paper completion, or where a device is unavailable. The completed form can be scanned and extracted via the CogTrack scan workflow. Patient circles one bubble per question.
+      </div>
+    </div>
+  </div>
+
+  <div class="print-controls">
+    <button class="btn-print" onclick="window.print()">🖨 Print form</button>
+    <button class="btn-secondary" onclick="window.location.href='scan.html'">📷 Scan a completed form</button>
+    <button class="btn-secondary" onclick="window.location.href='dietary-screener.html'">💻 Switch to digital version</button>
+    <span class="print-hint">A4 / Letter · Single page · Black &amp; white compatible</span>
+  </div>
+
+  <div class="paper-preview-wrap">
+    <div class="paper-form">
+
+      <!-- HEADER -->
+      <div class="pf-header">
+        <div class="pf-logo-line">Cog<span>Track</span> &mdash; Brain &amp; Performance Centre</div>
+        <div class="pf-title">Dietary Intake Screener &mdash; DIS-1.0</div>
+        <div class="pf-subtitle">Self-report &nbsp;&middot;&nbsp; For clinical use only &nbsp;&middot;&nbsp; Results reviewed by your care team</div>
+      </div>
+
+      <!-- PATIENT INFO -->
+      <div class="pf-info-grid">
+        <div class="pf-info-field">
+          <span class="pf-info-label">Patient name:</span>
+          <div class="pf-info-line"></div>
+        </div>
+        <div class="pf-info-field">
+          <span class="pf-info-label">Date:</span>
+          <div class="pf-info-line"></div>
+        </div>
+        <div class="pf-info-field">
+          <span class="pf-info-label">Visit:</span>
+          <div class="pf-info-line"></div>
+        </div>
+        <div class="pf-info-field" style="grid-column: 1 / -1;">
+          <span class="pf-info-label">DOB:</span>
+          <div class="pf-info-line" style="max-width: 90px;"></div>
+          &nbsp;&nbsp;
+          <span class="pf-info-label">Clinician:</span>
+          <div class="pf-info-line"></div>
+        </div>
+      </div>
+
+      <!-- INSTRUCTION -->
+      <div class="pf-instruction">
+        <strong>Instructions:</strong> Think about your eating habits over the <strong>past month</strong>. For each food group below, circle the bubble next to the answer that best describes how often you eat it on average. Circle <strong>one answer only</strong> per question. If you are unsure, choose the option closest to your typical pattern. Do not leave any question blank.
+      </div>
+
+      <!-- SECTION 1: FRUITS & VEGETABLES -->
+      <div class="pf-section">Section 1 &mdash; Fruits &amp; Vegetables</div>
+
+      <!-- Q1 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">1.</div>
+          <div class="pf-q-text">How often do you eat <strong>fresh fruits</strong>?</div>
+        </div>
+        <div class="pf-q-examples">E.g. apples, bananas, pears, oranges, grapes, strawberries, blueberries. Include frozen fruits with no added sugar. Do not include dried fruit, preserved fruit, or fruit juice.</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">2.</div>
+          <div class="pf-q-text">How often do you eat <strong>vegetables</strong>?</div>
+        </div>
+        <div class="pf-q-examples">E.g. tomatoes, peppers, cucumbers, broccoli, carrots, green beans, cabbage, spinach, arugula. Include raw or cooked non-starchy vegetables. Do not include starchy vegetables (potatoes) or fried vegetables.</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: PROTEINS -->
+      <div class="pf-section">Section 2 &mdash; Proteins &amp; Legumes</div>
+
+      <!-- Q3 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">3.</div>
+          <div class="pf-q-text">How often do you eat <strong>legumes, nuts, and seeds</strong>?</div>
+        </div>
+        <div class="pf-q-examples">Legumes: beans, lentils, chickpeas, peas, miso, tofu, tempeh, hummus. Nuts: almonds, walnuts, hazelnuts, peanuts. Seeds: sesame, sunflower, pumpkin, flax seeds.</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">4.</div>
+          <div class="pf-q-text">How often do you eat <strong>fish or seafood</strong>?</div>
+        </div>
+        <div class="pf-q-examples">Fresh fish or sea water fish: salmon, sardines, trout, mackerel, and seafood. Include canned fish and seafood in your estimate.</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: GRAINS -->
+      <div class="pf-section">Section 3 &mdash; Grains</div>
+
+      <!-- Q5 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">5.</div>
+          <div class="pf-q-text">How often do you eat <strong>whole grains</strong>?</div>
+        </div>
+        <div class="pf-q-examples">Whole grain bread, whole grain rolls, muesli, unsweetened cereal, cooked porridge or grits, brown rice, whole grain pasta, corn tortilla. Do not include white bread, white rice, white pasta, or wheat tortilla.</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">6.</div>
+          <div class="pf-q-text">How often do you eat <strong>refined grains</strong>?</div>
+        </div>
+        <div class="pf-q-examples">White bread, white rolls, bagels, English muffins, white rice, white pasta, wheat tortilla. Do not include whole grains from question 5.</div>
+        <div class="pf-direction-note neg">&#9650; Higher frequency = lower dietary quality score for this item</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: DAIRY -->
+      <div class="pf-section">Section 4 &mdash; Dairy</div>
+
+      <!-- Q7 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">7.</div>
+          <div class="pf-q-text">How often do you eat <strong>low-fat dairy</strong>?</div>
+        </div>
+        <div class="pf-q-examples">Low-fat milk (1% or skimmed), low-fat soy milk, low-fat yogurt, low-fat cheese, mozzarella, cottage cheese.</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">8.</div>
+          <div class="pf-q-text">How often do you eat <strong>high-fat dairy and saturated fats</strong>?</div>
+        </div>
+        <div class="pf-q-examples">2% or whole milk, butter, cream, cream cheese, full-fat cheese, full-fat yogurt (2%+), ice cream, coconut oil or shortening used for cooking. Do not include low-fat dairy from question 7.</div>
+        <div class="pf-direction-note neg">&#9650; Higher frequency = lower dietary quality score for this item</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: SWEETS -->
+      <div class="pf-section">Section 5 &mdash; Sweets</div>
+
+      <!-- Q9 -->
+      <div class="pf-q-block">
+        <div class="pf-q-header">
+          <div class="pf-q-num">9.</div>
+          <div class="pf-q-text">How often do you eat <strong>sweets and sweet foods</strong>?</div>
+        </div>
+        <div class="pf-q-examples">Commercial sweets, candies, cookies, cakes, pastries, sweet snacks.</div>
+        <div class="pf-direction-note neg">&#9650; Higher frequency = lower dietary quality score for this item</div>
+        <div class="pf-opts-grid">
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">A</span><span class="pf-opt-label">I do not eat this at all</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">B</span><span class="pf-opt-label">Less than once a week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">C</span><span class="pf-opt-label">1&ndash;2 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">D</span><span class="pf-opt-label">3&ndash;4 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">E</span><span class="pf-opt-label">5&ndash;6 times per week</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">F</span><span class="pf-opt-label">Once a day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">G</span><span class="pf-opt-label">2&ndash;3 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">H</span><span class="pf-opt-label">4&ndash;5 times per day</span></div>
+          <div class="pf-opt"><div class="pf-bubble"></div><span class="pf-opt-letter">I</span><span class="pf-opt-label">6 or more times per day</span></div>
+        </div>
+      </div>
+
+      <!-- SCORE BOX -->
+      <div class="pf-score-box">
+        <div>
+          <div class="pf-score-label">DIETARY QUALITY SCORE (clinician use only)</div>
+          <div class="pf-score-value">__ __ / 72</div>
+          <div class="pf-score-band">0&ndash;24: Low &nbsp;&nbsp; 25&ndash;44: Moderate &nbsp;&nbsp; 45&ndash;72: Good</div>
+        </div>
+        <div class="pf-sig-block">
+          <div class="pf-sig-label">Patient signature:</div>
+          <div style="width: 140px; border-bottom: 1px solid #999; height: 18px;"></div>
+        </div>
+      </div>
+
+      <!-- PAPER FOOTER -->
+      <div class="pf-footer">
+        <span>CogTrack DIS-1.0 &mdash; For demonstration only &mdash; Not a diagnostic instrument</span>
+        <span>Built by Andrew Wilkins / andrewgwilkins.com</span>
+      </div>
+
+    </div><!-- /paper-form -->
+  </div><!-- /paper-preview-wrap -->
+
+</div><!-- /screen-shell -->
+
+</body>
+</html>
