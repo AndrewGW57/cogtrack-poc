@@ -1723,6 +1723,31 @@ const MODAL_DATA = {
       { ts:'15 Jul 2026  14:38', action:'Delta calculated vs baseline (21/30): +1 point', actor:'System' },
       { ts:'15 Jul 2026  14:38', action:'Audit entry created and locked', actor:'System' },
     ]
+  },
+  'dis': {
+    patient: 'Margaret Thornton', id: 'PT-2024-0183', date: '15 Jul 2026',
+    scores: [
+      { label:'Dietary Quality Score', value:'38 / 72', sub:'Follow-up 1 · 15 Jul 2026', cls:'amber' },
+      { label:'Baseline',              value:'31 / 72', sub:'01 Jun 2026', cls:'red' },
+      { label:'Delta',                 value:'+7 pts',  sub:'Improvement from baseline', cls:'green' },
+    ],
+    drawn: [],
+    memory: null,
+    band: { text:'Moderate dietary quality', sub:'Score 38 falls in the 25–44 band. Improvement of 7 points from baseline (31/72, low quality). Low fish/seafood and refined grain intake remain areas for dietitian follow-up.', cls:'' },
+    auditRows: [
+      { ts:'15 Jul 2026  14:40', action:'DIS-1.0 selected', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:45', action:'Scan uploaded and pre-processed', actor:'System' },
+      { ts:'15 Jul 2026  14:45', action:'DIS-1.0 form structure identified — 9-question, 5-section layout', actor:'System' },
+      { ts:'15 Jul 2026  14:45', action:'14 fields extracted — all high confidence, no flags raised', actor:'System (AI)' },
+      { ts:'15 Jul 2026  14:45', action:'All 9 A–I frequency bubbles mapped to 0–8 score values', actor:'System' },
+      { ts:'15 Jul 2026  14:45', action:'Positive/negative item weighting applied — Q6, Q8, Q9 inverted', actor:'System' },
+      { ts:'15 Jul 2026  14:45', action:'Handwritten total (38/72) matches auto-calculated score — cross-check passed', actor:'System' },
+      { ts:'15 Jul 2026  14:47', action:'Extraction confirmed — 14 fields written to patient record PT-2024-0183', actor:'Dr. S. Mehra' },
+      { ts:'15 Jul 2026  14:47', action:'DIS dietary quality score: 38 / 72 — Moderate quality band', actor:'System' },
+      { ts:'15 Jul 2026  14:47', action:'Delta calculated vs baseline (31/72): +7 points', actor:'System' },
+      { ts:'15 Jul 2026  14:47', action:'Dietitian referral flag: low fish/seafood intake (Q4: less than once a week)', actor:'System' },
+      { ts:'15 Jul 2026  14:47', action:'Audit entry created and locked', actor:'System' },
+    ]
   }
 };
 
