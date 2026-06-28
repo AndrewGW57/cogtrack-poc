@@ -1405,7 +1405,7 @@ function renderPaperForm(ft) {
         Tareas 10 y 11 (rastreo, problema de palillos) — respuestas dibujadas marcadas para puntuación clínica
       </div>`;
 
-  } else {
+  } else if (selectedType === 'caq') {
     // CAQ form render
     const qTopics = ['Difficulty staying focused','Finishing tasks','Organization and planning','Forgetfulness in daily life','Restlessness','Impulsive decisions','Time management','Mental fatigue','Switching between tasks','Impact on daily functioning'];
     const qAnswers = ['C','C','D','C','B','C','D','D','C','C'];
