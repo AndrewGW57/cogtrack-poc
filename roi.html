@@ -259,8 +259,8 @@
     <section class="card">
       <div class="card-head">
         <div class="card-num">Section 6</div>
-        <h2 class="card-title">Cost to the centre</h2>
-        <p class="card-desc">Leave both at zero for a barter pilot. Enter figures to see net benefit and payback.</p>
+        <h2 class="card-title">Cost to the centre: cash and barter</h2>
+        <p class="card-desc">Enter what the centre pays in cash and what it credits in barter. Leave all blank to see benefit only.</p>
       </div>
       <div class="card-body" id="sec6"></div>
     </section>
@@ -297,7 +297,9 @@
         <div class="kv"><span>Admin hours freed / month</span><b id="rHa">0</b></div>
         <div class="kv"><span>Extra clients / month</span><b id="rXp">0</b></div>
         <div class="kv"><span>Gross extra revenue / year</span><b id="rGross">0</b></div>
-        <div class="kv"><span>CogTrack fees / year</span><b id="rFee">0</b></div>
+        <div class="kv"><span>Cash fees / year</span><b id="rFee">0</b></div>
+        <div class="kv"><span>Barter cost to centre / year</span><b id="rBar">0</b></div>
+        <div class="kv"><span>Setup fee, one-off</span><b id="rSetup">0</b></div>
         <div class="kv"><span>Payback</span><b id="rPay">n/a</b></div>
       </div>
       <div class="res-actions">
@@ -340,7 +342,7 @@
 
   // Every value starts blank. Nothing is assumed.
   var P_KEYS = ['dupIntake', 'adminRate', 'redAdmin', 'redClin', 'sell', 'costClin', 'costAdmin',
-                'margin', 'uplift', 'fuFee', 'contracts', 'contractPts', 'fee', 'setup'];
+                'margin', 'uplift', 'fuFee', 'contracts', 'contractPts', 'fee', 'setup', 'barter', 'barterCost'];
 
   function defaults() {
     var s = { seg: [], role: [], p: {} };
@@ -427,8 +429,10 @@
     numField('contractPts', 'Clients per contract', 'Applied at the corporate fee.');
 
   document.getElementById('sec6').innerHTML =
-    numField('fee', 'CogTrack monthly fee after pilot, AED', 'Zero for a barter arrangement.') +
-    numField('setup', 'One-off setup cost, AED', 'Zero for a barter arrangement.');
+    numField('setup', 'Setup fee, AED (cash, one-off)', 'Paid once, for configuring CogTrack to the centre\'s forms and report template.') +
+    numField('fee', 'Monthly fee, AED (cash)', 'Covers hosting, AI usage and support.') +
+    numField('barter', 'Barter credit, AED per year, at the agreed rate card', 'Value of the centre\'s services credited against CogTrack, at a rate card both sides agree. UAE VAT treats barter at market value, so ask an accountant. VAT is not modelled here.') +
+    slider('barterCost', 'Centre\'s direct cost of delivering the barter services', 'Share of the rate-card value the centre actually spends to deliver those services. Leave blank to count barter at full rate-card value.', '%', 100);
 
   // Push state into controls
   function syncControls() {
@@ -504,7 +508,7 @@
     var freedAdminHrs = adminMin / 60 * (num(p.redAdmin) / 100);
     var costAdminSaved = freedAdminHrs * num(p.adminRate) * (num(p.costAdmin) / 100);
 
-    var cost = costClinSaved + costAdminSaved;
+    var cost = (costClinSaved + costAdminSaved) * 12;
     var capacity = grossCap * 12 * margin;
 
     var annualPts = vol * 12;
@@ -516,18 +520,20 @@
     var growth = grossGrow * margin;
 
     var fees = num(p.fee) * 12;
+    var barterFull = num(p.barter);
+    var barterCost = p.barterCost === '' || p.barterCost === undefined ? barterFull : barterFull * Math.min(num(p.barterCost), 100) / 100;
     var benefitBeforeFee = cost + capacity + growth;
-    var net = benefitBeforeFee - fees;
+    var net = benefitBeforeFee - fees - barterCost;
 
     var payback;
-    var monthlyNet = benefitBeforeFee / 12 - num(p.fee);
-    if (num(p.fee) === 0 && num(p.setup) === 0) payback = 'No cash outlay';
+    var monthlyNet = benefitBeforeFee / 12 - num(p.fee) - barterCost / 12;
+    if (num(p.fee) === 0 && num(p.setup) === 0 && barterFull === 0) payback = 'No outlay';
     else if (monthlyNet <= 0) payback = 'Not at these inputs';
     else if (num(p.setup) === 0) payback = 'Immediate';
     else payback = fmt1.format(num(p.setup) / monthlyNet) + ' months';
 
     return {
-      cost: cost, capacity: capacity, growth: growth, net: net, fees: fees,
+      cost: cost, capacity: capacity, growth: growth, net: net, fees: fees, barterCost: barterCost, barterFull: barterFull, setup: num(p.setup),
       freedClinHrs: freedClinHrs, freedAdminHrs: freedAdminHrs,
       extraPts: extraPts, gross: grossCap * 12 + grossGrow, payback: payback,
       soldHrs: soldHrs, avgClinRate: avgClinRate, vol: vol, clinHrs: clinHrs, avgFee: avgFee
@@ -540,7 +546,7 @@
     var r = compute();
     var hasData = r.vol > 0 && r.avgFee > 0;
     if (!hasData) {
-      ['rNet', 'rCost', 'rCap', 'rGrow', 'rHc', 'rHa', 'rXp', 'rGross', 'rFee', 'rPay'].forEach(function (id) { el(id).textContent = '-'; });
+      ['rNet', 'rCost', 'rCap', 'rGrow', 'rHc', 'rHa', 'rXp', 'rGross', 'rFee', 'rBar', 'rSetup', 'rPay'].forEach(function (id) { el(id).textContent = '-'; });
       ['bCost', 'bCap', 'bGrow'].forEach(function (id) { el(id).style.width = '0'; });
       el('rNetNote').textContent = 'Enter clients per month and a fee for at least one service line to see results.';
       return;
@@ -554,6 +560,8 @@
     el('rXp').textContent = fmt1.format(r.extraPts);
     el('rGross').textContent = 'AED ' + aed(r.gross);
     el('rFee').textContent = 'AED ' + aed(r.fees);
+    el('rBar').textContent = 'AED ' + aed(r.barterCost);
+    el('rSetup').textContent = 'AED ' + aed(r.setup);
     el('rPay').textContent = r.payback;
 
     var max = Math.max(r.cost, r.capacity, r.growth, 1);
@@ -565,6 +573,7 @@
     el('rNetNote').textContent = (r.cost + r.capacity + r.growth > 0)
       ? firm + '% of the benefit before fees is cost avoided, the firmest line. Based only on the figures entered.'
       : 'Complete Sections 2 to 4 to see savings. Each line stays at zero until its inputs are entered.';
+    if (r.barterFull > 0) el('rNetNote').textContent += (S.p.barterCost === '' ? ' Barter is counted at full rate-card value.' : ' Barter is counted at the centre\'s direct cost.');
   }
 
   // Events
