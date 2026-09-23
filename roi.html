@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CogTrack ROI Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy-deep:  #071630;
+    --navy:       #0D2456;
+    --navy-mid:   #163272;
+    --navy-light: #1E428F;
+    --blue-accent:#2E6DD4;
+    --blue-pale:  #EEF3FA;
+    --gold-soft:  #C8A050;
+    --gold-faint: rgba(200,160,80,0.12);
+    --teal:       #1A8080;
+    --teal-light: #22A8A8;
+    --teal-faint: rgba(26,128,128,0.1);
+    --white:      #FFFFFF;
+    --off-white:  #F7F9FC;
+    --border:     #D8E2F0;
+    --border-dark:rgba(255,255,255,0.08);
+    --text:       #0F1E35;
+    --text-mid:   #3D5068;
+    --text-light: #7A90A8;
+    --serif:  'Playfair Display', Georgia, serif;
+    --sans:   'IBM Plex Sans', sans-serif;
+    --mono:   'IBM Plex Mono', monospace;
+  }
+
+  body { font-family: var(--sans); background: var(--off-white); color: var(--text); accent-color: var(--blue-accent); }
+
+  .poc-bar { background: var(--navy-mid); padding: 7px 28px; text-align: center; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 0.5px; font-family: var(--mono); }
+
+  .topbar { background: var(--navy-deep); padding: 0 40px; display: flex; align-items: stretch; height: 56px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-dark); }
+  .topbar-logo { display: flex; align-items: center; gap: 12px; padding-right: 24px; border-right: 1px solid var(--border-dark); margin-right: 24px; }
+  .logo-mark { width: 28px; height: 28px; border-radius: 6px; background: var(--blue-accent); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; font-weight: 600; color: white; letter-spacing: -0.5px; }
+  .logo-text { font-size: 15px; font-weight: 600; color: var(--white); letter-spacing: -0.2px; }
+  .logo-text span { color: rgba(255,255,255,0.45); font-weight: 300; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .topbar-btn { padding: 7px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; text-decoration: none; font-family: var(--sans); transition: opacity 0.15s; cursor: pointer; }
+  .topbar-btn:hover { opacity: 0.85; }
+  .topbar-btn.ghost { color: rgba(255,255,255,0.6); border: 1px solid var(--border-dark); background: none; }
+  .topbar-btn.primary { background: var(--blue-accent); color: white; border: 0; }
+
+  .hero { background: var(--navy-deep); padding: 56px 40px 52px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -120px; right: -100px; width: 560px; height: 560px; border-radius: 50%; background: radial-gradient(circle, rgba(30,66,143,0.35) 0%, transparent 65%); pointer-events: none; }
+  .hero-inner { max-width: 1160px; margin: 0 auto; position: relative; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gold-soft); margin-bottom: 16px; }
+  .hero-title { font-family: var(--serif); font-size: 40px; line-height: 1.15; color: white; font-weight: 600; max-width: 720px; }
+  .hero-sub { font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.5); font-weight: 300; max-width: 660px; margin-top: 16px; }
+
+  .layout { max-width: 1160px; margin: 0 auto; padding: 40px 40px 72px; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; align-items: start; }
+
+  .card { background: white; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; }
+  .card-head { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); }
+  .card-num { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--text-light); text-transform: uppercase; }
+  .card-title { font-family: var(--serif); font-size: 20px; font-weight: 600; margin-top: 4px; }
+  .card-desc { font-size: 13px; color: var(--text-mid); line-height: 1.6; margin-top: 6px; max-width: 640px; }
+  .card-body { padding: 18px 22px 22px; }
+
+  .scenario { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; }
+  .scenario-label { font-size: 13px; color: var(--text-mid); flex: 1 1 260px; line-height: 1.5; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .seg button { font-family: var(--sans); font-size: 13px; font-weight: 600; padding: 8px 18px; border: 0; background: white; color: var(--text-mid); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--navy); color: white; }
+  .seg button:focus-visible { outline: 2px solid var(--blue-accent); outline-offset: -2px; }
+
+  table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.grid th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); font-weight: 600; padding: 8px 8px; border-bottom: 2px solid var(--border); font-family: var(--mono); }
+  table.grid td { padding: 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.grid tr:last-child td { border-bottom: 0; }
+  table.grid td.name { font-weight: 500; min-width: 170px; }
+  table.grid td.name small { display: block; font-weight: 300; color: var(--text-light); font-size: 11px; margin-top: 2px; }
+  .scroll { overflow-x: auto; }
+
+  input[type="number"] { width: 100%; min-width: 74px; font-family: var(--mono); font-size: 13px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 4px; background: var(--off-white); color: var(--text); }
+  input[type="number"]:focus-visible { outline: 2px solid var(--blue-accent); outline-offset: 1px; background: white; }
+
+  .field { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .field:last-child { border-bottom: 0; }
+  .field label { font-size: 13px; font-weight: 500; }
+  .field .hint { grid-column: 1 / -1; font-size: 12px; color: var(--text-light); line-height: 1.5; font-weight: 300; }
+  .field .val { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--navy-light); text-align: right; min-width: 64px; }
+  .field .ctl { grid-column: 1 / -1; }
+  .field.inline .ctl { grid-column: auto; width: 130px; }
+
+  input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; cursor: pointer; }
+  input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: var(--border); }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; background: var(--blue-accent); border: 2px solid white; box-shadow: 0 0 0 1px var(--blue-accent); }
+  input[type="range"]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--border); }
+  input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--blue-accent); border: 2px solid white; box-shadow: 0 0 0 1px var(--blue-accent); }
+  input[type="range"]:focus-visible { outline: 2px solid var(--blue-accent); outline-offset: 3px; border-radius: 4px; }
+
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; margin-left: 8px; vertical-align: middle; }
+  .tag.gold { background: var(--gold-faint); color: #8A6A22; }
+  .tag.teal { background: var(--teal-faint); color: var(--teal); }
+
+  .results { position: sticky; top: 72px; }
+  .res { background: var(--navy-deep); color: white; border-radius: 8px; overflow: hidden; }
+  .res-top { padding: 22px 22px 18px; border-bottom: 1px solid var(--border-dark); }
+  .res-label { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .res-big { font-family: var(--serif); font-size: 36px; font-weight: 600; margin-top: 8px; line-height: 1.1; }
+  .res-big small { font-family: var(--mono); font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.4); margin-left: 6px; }
+  .res-note { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 8px; line-height: 1.55; font-weight: 300; }
+  .res-sec { padding: 16px 22px; border-bottom: 1px solid var(--border-dark); }
+  .tier { margin-bottom: 14px; }
+  .tier:last-child { margin-bottom: 0; }
+  .tier-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13px; }
+  .tier-row b { font-family: var(--mono); font-weight: 600; }
+  .tier-sub { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 3px; line-height: 1.45; font-weight: 300; }
+  .bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 3px; width: 0; transition: width 0.25s; }
+  .kv { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; padding: 5px 0; color: rgba(255,255,255,0.55); }
+  .kv b { font-family: var(--mono); font-weight: 600; color: white; text-align: right; }
+  .res-actions { padding: 16px 22px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .res-actions button { font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
+  .btn-p { background: var(--blue-accent); color: white; border: 0; }
+  .btn-g { background: none; color: rgba(255,255,255,0.6); border: 1px solid var(--border-dark); }
+  .res-actions button:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 2px; }
+
+  .caveat { font-size: 12px; color: var(--text-mid); line-height: 1.65; margin-top: 14px; padding: 12px 14px; background: var(--blue-pale); border-radius: 6px; }
+
+  .footer { background: var(--navy-deep); padding: 32px 40px; border-top: 1px solid var(--border-dark); display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+  .footer-product { font-size: 15px; font-weight: 600; color: white; margin-bottom: 4px; }
+  .footer-product span { color: rgba(255,255,255,0.35); font-weight: 300; }
+  .footer-desc { font-size: 12px; color: rgba(255,255,255,0.28); line-height: 1.65; max-width: 420px; margin-top: 8px; }
+  .footer-right { text-align: right; font-size: 12px; color: rgba(255,255,255,0.25); line-height: 1.8; }
+  .footer-right a { color: rgba(255,255,255,0.35); text-decoration: none; }
+
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: minmax(0, 1fr); padding: 28px 20px 56px; }
+    .results { position: static; order: -1; }
+    .hero { padding: 44px 20px 40px; }
+    .hero-title { font-size: 30px; }
+    .topbar { padding: 0 20px; }
+    .topbar-right .ghost { display: none; }
+  }
+
+  @media print {
+    .poc-bar, .topbar, .scenario, .res-actions, .footer { display: none; }
+    body { background: white; }
+    .layout { grid-template-columns: 1fr; padding: 0; }
+    .results { position: static; order: -1; margin-bottom: 20px; }
+    .card { break-inside: avoid; }
+    .res { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="poc-bar">Proof of concept &nbsp;·&nbsp; ROI model &nbsp;·&nbsp; No pre-filled figures. Results reflect only what is entered</div>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <a href="index.html" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
+      <div class="logo-mark">CT</div>
+      <div class="logo-text">CogTrack <span>/ ROI model</span></div>
+    </a>
+  </div>
+  <div class="topbar-right">
+    <a href="index.html" class="topbar-btn ghost">Overview</a>
+    <a href="dashboard.html" class="topbar-btn primary">Clinician dashboard</a>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">ROI model &nbsp;·&nbsp; Built for the centre's own numbers</div>
+    <h1 class="hero-title">What paperwork costs today, and what a single patient record returns.</h1>
+    <p class="hero-sub">Enter your programs, your clinicians and your time. The model separates money you stop spending, capacity you can sell, and growth you might win. Each is labeled by how firm it is.</p>
+  </div>
+</section>
+
+<main class="layout">
+  <div>
+
+    <div class="scenario">
+      <div class="scenario-label"><strong>Nothing is pre-filled.</strong> Enter the centre's own figures. Results appear as soon as patients and fees are entered, and each section adds to them. Start with Section 1.</div>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-num">Section 1</div>
+        <h2 class="card-title">Programs and patients</h2>
+        <p class="card-desc">Patients per month and fee per patient for each service line. Leave a line blank if the centre does not run it.</p>
+      </div>
+      <div class="card-body scroll">
+        <table class="grid" id="segTable">
+          <thead><tr><th scope="col">Service line</th><th scope="col">Patients / month</th><th scope="col">Fee / patient (AED)</th><th scope="col">Admin min to compile report</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-num">Section 2</div>
+        <h2 class="card-title">Clinician paperwork per patient</h2>
+        <p class="card-desc">Minutes each clinician spends handling paper per patient: administering written tests, scoring, transcribing, and writing up. Leave zero where a role is not involved. Rates are cost to the centre per hour.</p>
+      </div>
+      <div class="card-body scroll">
+        <table class="grid" id="roleTable">
+          <thead><tr><th scope="col">Clinician</th><th scope="col">AED / hour</th><th scope="col">Executive</th><th scope="col">Athlete</th><th scope="col">Corporate</th><th scope="col">Children</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-num">Section 3</div>
+        <h2 class="card-title">Coordination and the final report</h2>
+        <p class="card-desc">Each clinician sends results to one repository. A master template builds the final report with index, page numbers, headers and footers. This section prices the administrative work that replaces.</p>
+      </div>
+      <div class="card-body" id="sec3"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-num">Section 4</div>
+        <h2 class="card-title">What CogTrack changes</h2>
+        <p class="card-desc">These sliders decide how much of the time saved becomes money. Saved minutes are worth nothing until they cut paid hours or fill a bookable slot.</p>
+      </div>
+      <div class="card-body" id="sec4"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-num">Section 5 <span class="tag gold">Speculative</span></div>
+        <h2 class="card-title">Growth</h2>
+        <p class="card-desc">Follow-up testing and new contracts. Treat these as upside to test in a pilot, not as a promise.</p>
+      </div>
+      <div class="card-body" id="sec5"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-num">Section 6</div>
+        <h2 class="card-title">Cost to the centre</h2>
+        <p class="card-desc">Leave both at zero for a barter pilot. Enter figures to see net benefit and payback.</p>
+      </div>
+      <div class="card-body" id="sec6"></div>
+    </section>
+
+    <div class="caveat"><strong>How to read this.</strong> Cost avoided is firm only where hours actually leave payroll, overtime or locum spend. Capacity revenue is conditional on demand: bookable slots need patients. Growth is unproven. Revenue is shown after a contribution margin, because extra patients carry their own costs. A pilot replaces estimates with measured data.</div>
+  </div>
+
+  <aside class="results" aria-label="Results">
+    <div class="res">
+      <div class="res-top">
+        <div class="res-label">Net annual benefit</div>
+        <div class="res-big"><span id="rNet">0</span><small>AED / year</small></div>
+        <div class="res-note" id="rNetNote"></div>
+      </div>
+      <div class="res-sec">
+        <div class="tier">
+          <div class="tier-row"><span>Cost avoided</span><b id="rCost">0</b></div>
+          <div class="bar"><i id="bCost" style="background: var(--teal-light)"></i></div>
+          <div class="tier-sub">Firmest. Paid hours removed from clinicians and admin.</div>
+        </div>
+        <div class="tier">
+          <div class="tier-row"><span>Extra capacity</span><b id="rCap">0</b></div>
+          <div class="bar"><i id="bCap" style="background: var(--blue-accent)"></i></div>
+          <div class="tier-sub">Conditional on demand. Freed hours sold as extra patients, after margin.</div>
+        </div>
+        <div class="tier">
+          <div class="tier-row"><span>Growth</span><b id="rGrow">0</b></div>
+          <div class="bar"><i id="bGrow" style="background: var(--gold-soft)"></i></div>
+          <div class="tier-sub">Speculative. Follow-ups and new contracts, after margin.</div>
+        </div>
+      </div>
+      <div class="res-sec">
+        <div class="kv"><span>Clinician hours freed / month</span><b id="rHc">0</b></div>
+        <div class="kv"><span>Admin hours freed / month</span><b id="rHa">0</b></div>
+        <div class="kv"><span>Extra patients / month</span><b id="rXp">0</b></div>
+        <div class="kv"><span>Gross extra revenue / year</span><b id="rGross">0</b></div>
+        <div class="kv"><span>CogTrack fees / year</span><b id="rFee">0</b></div>
+        <div class="kv"><span>Payback</span><b id="rPay">n/a</b></div>
+      </div>
+      <div class="res-actions">
+        <button type="button" class="btn-p" id="btnPrint">Print summary</button>
+        <button type="button" class="btn-g" id="btnReset">Reset values</button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer class="footer">
+  <div>
+    <div class="footer-product">CogTrack <span>/ ROI model</span></div>
+    <div class="footer-desc">Results are only as good as the figures entered. Not financial advice.</div>
+  </div>
+  <div class="footer-right">Built by Andrew Wilkins<br><a href="https://andrewgwilkins.com">andrewgwilkins.com</a></div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var KEY = 'cogtrack-roi-v2';
+
+  var SEGMENTS = [
+    { id: 'exec',  name: 'Executive health check', note: 'Multi-clinician program, consolidated report' },
+    { id: 'ath',   name: 'Athlete programs',       note: 'Rugby, tennis, golf and similar' },
+    { id: 'corp',  name: 'Corporate programs',     note: 'Individuals and groups' },
+    { id: 'child', name: 'Children',               note: 'Autism and other neurodevelopmental assessment' }
+  ];
+
+  var ROLES = [
+    { name: 'Neuropsychologist',                 note: 'Cognitive and developmental tests' },
+    { name: 'Physician (medical and blood work)', note: '' },
+    { name: 'Exercise physiologist',             note: 'Fitness and stress test' },
+    { name: 'Dietitian',                         note: 'Dietary questionnaire' },
+    { name: 'Developmental clinician',           note: 'Paper tests used with children' },
+    { name: 'Other clinician',                   note: '' }
+  ];
+
+  // Every value starts blank. Nothing is assumed.
+  var P_KEYS = ['dupIntake', 'adminRate', 'redAdmin', 'redClin', 'sell', 'costClin', 'costAdmin',
+                'billHrs', 'margin', 'uplift', 'fuFee', 'contracts', 'contractPts', 'fee', 'setup'];
+
+  function defaults() {
+    var s = { seg: [], role: [], p: {} };
+    SEGMENTS.forEach(function () { s.seg.push({ vol: '', fee: '', compile: '' }); });
+    ROLES.forEach(function () { s.role.push({ rate: '', m: ['', '', '', ''] }); });
+    P_KEYS.forEach(function (k) { s.p[k] = ''; });
+    return s;
+  }
+
+  var S = load() || defaults();
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return null;
+      var o = JSON.parse(raw);
+      var d = defaults();
+      if (!o || !o.seg || !o.role || !o.p || o.seg.length !== d.seg.length || o.role.length !== d.role.length) return null;
+      return o;
+    } catch (e) { return null; }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+  function num(v) { var n = parseFloat(v); return isFinite(n) && n >= 0 ? n : 0; }
+  var fmt = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
+  var fmt1 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+  function aed(n) { return fmt.format(Math.round(n)); }
+
+  function numInput(path, value, label) {
+    return '<input type="number" min="0" step="any" inputmode="decimal" data-path="' + path + '" value="' + value + '" aria-label="' + label + '">';
+  }
+
+  // Sections 1 and 2
+  var segBody = document.querySelector('#segTable tbody');
+  segBody.innerHTML = SEGMENTS.map(function (g, i) {
+    return '<tr><td class="name">' + g.name + '<small>' + g.note + '</small></td>' +
+      '<td>' + numInput('seg.' + i + '.vol', S.seg[i].vol, g.name + ' patients per month') + '</td>' +
+      '<td>' + numInput('seg.' + i + '.fee', S.seg[i].fee, g.name + ' fee per patient in AED') + '</td>' +
+      '<td>' + numInput('seg.' + i + '.compile', S.seg[i].compile, g.name + ' admin minutes to compile final report') + '</td></tr>';
+  }).join('');
+
+  var roleBody = document.querySelector('#roleTable tbody');
+  roleBody.innerHTML = ROLES.map(function (r, i) {
+    var cells = SEGMENTS.map(function (g, j) {
+      return '<td>' + numInput('role.' + i + '.m.' + j, S.role[i].m[j], r.name + ' minutes, ' + g.name) + '</td>';
+    }).join('');
+    return '<tr><td class="name">' + r.name + (r.note ? '<small>' + r.note + '</small>' : '') + '</td>' +
+      '<td>' + numInput('role.' + i + '.rate', S.role[i].rate, r.name + ' cost per hour in AED') + '</td>' + cells + '</tr>';
+  }).join('');
+
+  // Field builders for sections 3 to 6
+  function slider(key, label, hint, unit, max) {
+    return '<div class="field inline"><label for="f_' + key + '">' + label + ' (' + unit.trim() + ')</label>' +
+      '<div class="ctl"><input type="number" min="0" max="' + (max || 100) + '" step="any" inputmode="decimal" id="f_' + key + '" data-p="' + key + '"></div>' +
+      '<div class="hint">' + hint + '</div></div>';
+  }
+  function numField(key, label, hint) {
+    return '<div class="field inline"><label for="f_' + key + '">' + label + '</label>' +
+      '<div class="ctl"><input type="number" min="0" step="any" inputmode="decimal" id="f_' + key + '" data-p="' + key + '"></div>' +
+      '<div class="hint">' + hint + '</div></div>';
+  }
+
+  document.getElementById('sec3').innerHTML =
+    numField('dupIntake', 'Duplicate intake and filing, minutes per patient', 'Time spent re-entering the same identity and history for each clinician, plus filing and chasing paper.') +
+    numField('adminRate', 'Administrative cost, AED per hour', 'Cost of the person who compiles and files reports.') +
+    slider('redAdmin', 'Admin work removed by automatic compilation', 'Share of compile and duplicate-entry time that disappears when reports flow to one repository and a master template builds the final report.', '%', 100);
+
+  document.getElementById('sec4').innerHTML =
+    slider('redClin', 'Clinician paperwork removed', 'Share of scoring, transcription and write-up time CogTrack removes. Best set from a timed sample with the clinicians, not an estimate.', '%', 100) +
+    slider('sell', 'Freed clinician hours sold as extra patients', 'Only counts if there is unmet demand: a waitlist or unfilled calendar. Set to zero if slots are already full of patients and no more are waiting.', '%', 100) +
+    slider('costClin', 'Freed clinician hours that cut paid hours', 'Overtime, locum cover or a hire avoided. The remainder of freed hours is absorbed and earns nothing in this model.', '%', 100) +
+    slider('costAdmin', 'Freed admin hours that cut paid hours', 'Same test for administrative time.', '%', 100) +
+    numField('billHrs', 'Clinician hours to treat one patient, all clinicians', 'Used to convert freed hours into extra patients.') +
+    slider('margin', 'Contribution margin on extra revenue', 'Share of each extra dirham left after direct costs such as consumables, equipment time and imaging.', '%', 100);
+
+  document.getElementById('sec5').innerHTML =
+    slider('uplift', 'Extra patients returning for follow-up testing', 'Percentage points added to the share of patients who come back within a year, because tracking over time is now easy to show.', ' pts', 40) +
+    slider('fuFee', 'Follow-up fee as share of full fee', 'A follow-up is usually cheaper than the first assessment.', '%', 100) +
+    numField('contracts', 'New group contracts won per year', 'Teams, clubs or companies won because the consolidated report is faster and cleaner. Zero is a fair default.') +
+    numField('contractPts', 'Patients per contract', 'Applied at the corporate fee.');
+
+  document.getElementById('sec6').innerHTML =
+    numField('fee', 'CogTrack monthly fee after pilot, AED', 'Zero for a barter arrangement.') +
+    numField('setup', 'One-off setup cost, AED', 'Zero for a barter arrangement.');
+
+  // Push state into controls
+  function syncControls() {
+    document.querySelectorAll('[data-p]').forEach(function (el) {
+      var k = el.getAttribute('data-p');
+      el.value = S.p[k];
+    });
+    document.querySelectorAll('[data-path]').forEach(function (el) {
+      el.value = getPath(el.getAttribute('data-path'));
+    });
+  }
+
+  function getPath(path) {
+    return path.split('.').reduce(function (o, k) { return o[k]; }, S);
+  }
+  function setPath(path, val) {
+    var parts = path.split('.');
+    var last = parts.pop();
+    var o = parts.reduce(function (acc, k) { return acc[k]; }, S);
+    o[last] = val;
+  }
+
+  // Model
+  function compute() {
+    var p = S.p, i, j;
+    var vol = 0, revSum = 0, compileMin = 0;
+    for (i = 0; i < S.seg.length; i++) {
+      var sv = num(S.seg[i].vol), sf = num(S.seg[i].fee);
+      vol += sv;
+      revSum += sv * sf;
+      compileMin += sv * num(S.seg[i].compile);
+    }
+    var avgFee = vol > 0 ? revSum / vol : 0;
+
+    var clinMin = 0, clinCost = 0;
+    for (i = 0; i < S.role.length; i++) {
+      var rate = num(S.role[i].rate);
+      for (j = 0; j < S.seg.length; j++) {
+        var mins = num(S.seg[j].vol) * num(S.role[i].m[j]);
+        clinMin += mins;
+        clinCost += mins / 60 * rate;
+      }
+    }
+    var clinHrs = clinMin / 60;
+    var redC = num(p.redClin) / 100;
+    var freedClinHrs = clinHrs * redC;
+    var freedClinCost = clinCost * redC;
+    var avgClinRate = clinHrs > 0 ? clinCost / clinHrs : 0;
+
+    // Split freed clinician hours: sold, cut, absorbed. Sold + cut cannot exceed 100%.
+    var sell = Math.min(num(p.sell), 100) / 100;
+    var cut = Math.min(num(p.costClin), 100 - sell * 100) / 100;
+
+    var costClinSaved = freedClinCost * cut;
+    var soldHrs = freedClinHrs * sell;
+    var extraPts = num(p.billHrs) > 0 ? soldHrs / num(p.billHrs) : 0;
+    var grossCap = extraPts * avgFee;
+    var margin = Math.min(num(p.margin), 100) / 100;
+
+    var adminMin = compileMin + vol * num(p.dupIntake);
+    var freedAdminHrs = adminMin / 60 * (num(p.redAdmin) / 100);
+    var costAdminSaved = freedAdminHrs * num(p.adminRate) * (num(p.costAdmin) / 100);
+
+    var cost = costClinSaved + costAdminSaved;
+    var capacity = grossCap * 12 * margin;
+
+    var annualPts = vol * 12;
+    var extraReturns = annualPts * num(p.uplift) / 100;
+    var fuGross = extraReturns * avgFee * (num(p.fuFee) / 100);
+    var corpFee = num(S.seg[2].fee);
+    var conGross = num(p.contracts) * num(p.contractPts) * corpFee;
+    var grossGrow = fuGross + conGross;
+    var growth = grossGrow * margin;
+
+    var fees = num(p.fee) * 12;
+    var benefitBeforeFee = cost + capacity + growth;
+    var net = benefitBeforeFee - fees;
+
+    var payback;
+    var monthlyNet = benefitBeforeFee / 12 - num(p.fee);
+    if (num(p.fee) === 0 && num(p.setup) === 0) payback = 'No cash outlay';
+    else if (monthlyNet <= 0) payback = 'Not at these inputs';
+    else if (num(p.setup) === 0) payback = 'Immediate';
+    else payback = fmt1.format(num(p.setup) / monthlyNet) + ' months';
+
+    return {
+      cost: cost, capacity: capacity, growth: growth, net: net, fees: fees,
+      freedClinHrs: freedClinHrs, freedAdminHrs: freedAdminHrs,
+      extraPts: extraPts, gross: grossCap * 12 + grossGrow, payback: payback,
+      soldHrs: soldHrs, avgClinRate: avgClinRate, vol: vol, clinHrs: clinHrs, avgFee: avgFee
+    };
+  }
+
+  function el(id) { return document.getElementById(id); }
+
+  function render() {
+    var r = compute();
+    var hasData = r.vol > 0 && r.avgFee > 0;
+    if (!hasData) {
+      ['rNet', 'rCost', 'rCap', 'rGrow', 'rHc', 'rHa', 'rXp', 'rGross', 'rFee', 'rPay'].forEach(function (id) { el(id).textContent = '-'; });
+      ['bCost', 'bCap', 'bGrow'].forEach(function (id) { el(id).style.width = '0'; });
+      el('rNetNote').textContent = 'Enter patients per month and a fee for at least one service line to see results.';
+      return;
+    }
+    el('rNet').textContent = aed(r.net);
+    el('rCost').textContent = aed(r.cost);
+    el('rCap').textContent = aed(r.capacity);
+    el('rGrow').textContent = aed(r.growth);
+    el('rHc').textContent = fmt1.format(r.freedClinHrs);
+    el('rHa').textContent = fmt1.format(r.freedAdminHrs);
+    el('rXp').textContent = fmt1.format(r.extraPts);
+    el('rGross').textContent = 'AED ' + aed(r.gross);
+    el('rFee').textContent = 'AED ' + aed(r.fees);
+    el('rPay').textContent = r.payback;
+
+    var max = Math.max(r.cost, r.capacity, r.growth, 1);
+    el('bCost').style.width = (r.cost / max * 100) + '%';
+    el('bCap').style.width = (r.capacity / max * 100) + '%';
+    el('bGrow').style.width = (r.growth / max * 100) + '%';
+
+    var firm = r.cost + r.capacity + r.growth > 0 ? Math.round(r.cost / (r.cost + r.capacity + r.growth) * 100) : 0;
+    el('rNetNote').textContent = (r.cost + r.capacity + r.growth > 0)
+      ? firm + '% of the benefit before fees is cost avoided, the firmest line. Based only on the figures entered.'
+      : 'Complete Sections 2 to 4 to see savings. Each line stays at zero until its inputs are entered.';
+  }
+
+  // Events
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    var p = t.getAttribute && t.getAttribute('data-p');
+    var path = t.getAttribute && t.getAttribute('data-path');
+    if (p) {
+      S.p[p] = t.value === '' ? '' : num(t.value);
+    } else if (path) {
+      setPath(path, t.value === '' ? '' : num(t.value));
+    } else { return; }
+    save();
+    render();
+  });
+
+  el('btnReset').addEventListener('click', function () {
+    S = defaults();
+    syncControls(); save(); render();
+  });
+  el('btnPrint').addEventListener('click', function () { window.print(); });
+
+  syncControls();
+  render();
+})();
+</script>
+</body>
+</html>
