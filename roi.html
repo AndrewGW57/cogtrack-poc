@@ -76,7 +76,7 @@
   table.grid th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-light); font-weight: 600; padding: 8px 4px; border-bottom: 2px solid var(--border); font-family: var(--mono); overflow-wrap: anywhere; }
   table.grid td { padding: 8px 4px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   table.grid tr:last-child td { border-bottom: 0; }
-  table.grid th:first-child { width: 28%; }
+  table.grid th:first-child { width: 24%; }
   table.grid td.name { font-weight: 500; overflow-wrap: anywhere; }
   table.grid td.name small { display: block; font-weight: 300; color: var(--text-light); font-size: 11px; margin-top: 2px; }
   .scroll { overflow-x: auto; }
@@ -88,7 +88,11 @@
   .field:last-child { border-bottom: 0; }
   .field label { font-size: 13px; font-weight: 500; }
   .field .hint { grid-column: 1 / -1; font-size: 12px; color: var(--text-light); line-height: 1.5; font-weight: 300; }
-  .field .val { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--navy-light); text-align: right; min-width: 64px; }
+  .field .val { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--navy-light); text-align: right; }
+  .field.slide .val input { width: 96px; text-align: right; }
+  input[type="range"].unset { opacity: 0.45; }
+  input[type="range"].unset::-webkit-slider-thumb { background: var(--text-light); box-shadow: 0 0 0 1px var(--text-light); }
+  input[type="range"].unset::-moz-range-thumb { background: var(--text-light); box-shadow: 0 0 0 1px var(--text-light); }
   .field .ctl { grid-column: 1 / -1; }
   .field.inline .ctl { grid-column: auto; width: 130px; }
 
@@ -185,7 +189,7 @@
 <section class="hero">
   <div class="hero-inner">
     <div class="eyebrow">ROI model &nbsp;·&nbsp; Built for the centre's own numbers</div>
-    <h1 class="hero-title">What paperwork costs today, and what a single patient record returns.</h1>
+    <h1 class="hero-title">What paperwork costs today, and what a single client record returns.</h1>
     <p class="hero-sub">Enter your programs, your clinicians and your time. The model separates money you stop spending, capacity you can sell, and growth you might win. Each is labeled by how firm it is.</p>
   </div>
 </section>
@@ -194,18 +198,18 @@
   <div>
 
     <div class="scenario">
-      <div class="scenario-label"><strong>Nothing is pre-filled.</strong> Enter the centre's own figures. Results appear as soon as patients and fees are entered, and each section adds to them. Start with Section 1.</div>
+      <div class="scenario-label"><strong>Nothing is pre-filled.</strong> Enter the centre's own figures. Results appear as soon as clients and fees are entered, and each section adds to them. Start with Section 1.</div>
     </div>
 
     <section class="card">
       <div class="card-head">
         <div class="card-num">Section 1</div>
-        <h2 class="card-title">Programs and patients</h2>
-        <p class="card-desc">Patients per month and fee per patient for each service line. Leave a line blank if the centre does not run it.</p>
+        <h2 class="card-title">Programs and clients</h2>
+        <p class="card-desc">Clients per month and fee per client for each service line. Leave a line blank if the centre does not run it. Clinician min per client is the total across every clinician, including report review. It sets how many extra clients freed time can fund, and only lines with it filled in count toward extra capacity.</p>
       </div>
       <div class="card-body scroll">
         <table class="grid" id="segTable">
-          <thead><tr><th scope="col">Service line</th><th scope="col">Patients / month</th><th scope="col">Fee / patient (AED)</th><th scope="col">Admin min to compile report</th></tr></thead>
+          <thead><tr><th scope="col">Service line</th><th scope="col">Clients / month</th><th scope="col">Fee / client (AED)</th><th scope="col">Admin min to compile report</th><th scope="col">Clinician min per client</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -214,8 +218,8 @@
     <section class="card">
       <div class="card-head">
         <div class="card-num">Section 2</div>
-        <h2 class="card-title">Clinician paperwork per patient</h2>
-        <p class="card-desc">Minutes each clinician spends handling paper per patient: administering written tests, scoring, transcribing, and writing up. Leave zero where a role is not involved. Rates are cost to the centre per hour.</p>
+        <h2 class="card-title">Clinician paperwork per client</h2>
+        <p class="card-desc">Minutes each clinician spends handling paper per client: administering written tests, scoring, transcribing, and writing up. Leave zero where a role is not involved. Rates are cost to the centre per hour.</p>
       </div>
       <div class="card-body scroll">
         <table class="grid" id="roleTable">
@@ -238,7 +242,7 @@
       <div class="card-head">
         <div class="card-num">Section 4</div>
         <h2 class="card-title">What CogTrack changes</h2>
-        <p class="card-desc">These sliders decide how much of the time saved becomes money. Saved minutes are worth nothing until they cut paid hours or fill a bookable slot.</p>
+        <p class="card-desc">These settings decide how much of the time saved becomes money. Drag a slider or type a value. A greyed slider means nothing is set yet. Saved minutes are worth nothing until they cut paid hours or fill a bookable slot.</p>
       </div>
       <div class="card-body" id="sec4"></div>
     </section>
@@ -261,7 +265,7 @@
       <div class="card-body" id="sec6"></div>
     </section>
 
-    <div class="caveat"><strong>How to read this.</strong> Cost avoided is firm only where hours actually leave payroll, overtime or locum spend. Capacity revenue is conditional on demand: bookable slots need patients. Growth is unproven. Revenue is shown after a contribution margin, because extra patients carry their own costs. A pilot replaces estimates with measured data.</div>
+    <div class="caveat"><strong>How to read this.</strong> Cost avoided is firm only where hours actually leave payroll, overtime or locum spend. Capacity revenue is conditional on demand: bookable slots need clients. Growth is unproven. Revenue is shown after a contribution margin, because extra clients carry their own costs. A pilot replaces estimates with measured data.</div>
   </div>
 
   <aside class="results" aria-label="Results">
@@ -280,7 +284,7 @@
         <div class="tier">
           <div class="tier-row"><span>Extra capacity</span><b id="rCap">0</b></div>
           <div class="bar"><i id="bCap" style="background: var(--blue-accent)"></i></div>
-          <div class="tier-sub">Conditional on demand. Freed hours sold as extra patients, after margin.</div>
+          <div class="tier-sub">Conditional on demand. Freed hours sold as extra clients, after margin.</div>
         </div>
         <div class="tier">
           <div class="tier-row"><span>Growth</span><b id="rGrow">0</b></div>
@@ -291,7 +295,7 @@
       <div class="res-sec">
         <div class="kv"><span>Clinician hours freed / month</span><b id="rHc">0</b></div>
         <div class="kv"><span>Admin hours freed / month</span><b id="rHa">0</b></div>
-        <div class="kv"><span>Extra patients / month</span><b id="rXp">0</b></div>
+        <div class="kv"><span>Extra clients / month</span><b id="rXp">0</b></div>
         <div class="kv"><span>Gross extra revenue / year</span><b id="rGross">0</b></div>
         <div class="kv"><span>CogTrack fees / year</span><b id="rFee">0</b></div>
         <div class="kv"><span>Payback</span><b id="rPay">n/a</b></div>
@@ -336,11 +340,11 @@
 
   // Every value starts blank. Nothing is assumed.
   var P_KEYS = ['dupIntake', 'adminRate', 'redAdmin', 'redClin', 'sell', 'costClin', 'costAdmin',
-                'billHrs', 'margin', 'uplift', 'fuFee', 'contracts', 'contractPts', 'fee', 'setup'];
+                'margin', 'uplift', 'fuFee', 'contracts', 'contractPts', 'fee', 'setup'];
 
   function defaults() {
     var s = { seg: [], role: [], p: {} };
-    SEGMENTS.forEach(function () { s.seg.push({ vol: '', fee: '', compile: '' }); });
+    SEGMENTS.forEach(function () { s.seg.push({ vol: '', fee: '', compile: '', clin: '' }); });
     ROLES.forEach(function () { s.role.push({ rate: '', m: ['', '', '', ''] }); });
     P_KEYS.forEach(function (k) { s.p[k] = ''; });
     return s;
@@ -355,6 +359,8 @@
       var o = JSON.parse(raw);
       var d = defaults();
       if (!o || !o.seg || !o.role || !o.p || o.seg.length !== d.seg.length || o.role.length !== d.role.length) return null;
+      o.p = Object.assign(d.p, o.p);
+      o.seg.forEach(function (g) { if (g.clin === undefined) g.clin = ''; });
       return o;
     } catch (e) { return null; }
   }
@@ -373,9 +379,10 @@
   var segBody = document.querySelector('#segTable tbody');
   segBody.innerHTML = SEGMENTS.map(function (g, i) {
     return '<tr><td class="name">' + g.name + '<small>' + g.note + '</small></td>' +
-      '<td>' + numInput('seg.' + i + '.vol', S.seg[i].vol, g.name + ' patients per month') + '</td>' +
-      '<td>' + numInput('seg.' + i + '.fee', S.seg[i].fee, g.name + ' fee per patient in AED') + '</td>' +
-      '<td>' + numInput('seg.' + i + '.compile', S.seg[i].compile, g.name + ' admin minutes to compile final report') + '</td></tr>';
+      '<td>' + numInput('seg.' + i + '.vol', S.seg[i].vol, g.name + ' clients per month') + '</td>' +
+      '<td>' + numInput('seg.' + i + '.fee', S.seg[i].fee, g.name + ' fee per client in AED') + '</td>' +
+      '<td>' + numInput('seg.' + i + '.compile', S.seg[i].compile, g.name + ' admin minutes to compile final report') + '</td>' +
+      '<td>' + numInput('seg.' + i + '.clin', S.seg[i].clin, g.name + ' total clinician minutes per client including review') + '</td></tr>';
   }).join('');
 
   var roleBody = document.querySelector('#roleTable tbody');
@@ -388,11 +395,13 @@
   }).join('');
 
   // Field builders for sections 3 to 6
-  function slider(key, label, hint, unit, max) {
-    return '<div class="field inline"><label for="f_' + key + '">' + label + ' (' + unit.trim() + ')</label>' +
-      '<div class="ctl"><input type="number" min="0" max="' + (max || 100) + '" step="any" inputmode="decimal" id="f_' + key + '" data-p="' + key + '"></div>' +
+  function slider(key, label, hint, unit, max, step) {
+    return '<div class="field slide"><label for="n_' + key + '">' + label + ' (' + unit.trim() + ')</label>' +
+      '<div class="val"><input type="number" min="0" max="' + max + '" step="any" inputmode="decimal" id="n_' + key + '" data-p="' + key + '"></div>' +
+      '<div class="ctl"><input type="range" min="0" max="' + max + '" step="' + (step || 1) + '" id="f_' + key + '" data-p="' + key + '" data-range="1" aria-label="' + label + ' slider"></div>' +
       '<div class="hint">' + hint + '</div></div>';
   }
+
   function numField(key, label, hint) {
     return '<div class="field inline"><label for="f_' + key + '">' + label + '</label>' +
       '<div class="ctl"><input type="number" min="0" step="any" inputmode="decimal" id="f_' + key + '" data-p="' + key + '"></div>' +
@@ -400,23 +409,22 @@
   }
 
   document.getElementById('sec3').innerHTML =
-    numField('dupIntake', 'Duplicate intake and filing, minutes per patient', 'Time spent re-entering the same identity and history for each clinician, plus filing and chasing paper.') +
+    numField('dupIntake', 'Duplicate intake and filing, minutes per client', 'Time spent re-entering the same identity and history for each clinician, plus filing and chasing paper.') +
     numField('adminRate', 'Administrative cost, AED per hour', 'Cost of the person who compiles and files reports.') +
     slider('redAdmin', 'Admin work removed by automatic compilation', 'Share of compile and duplicate-entry time that disappears when reports flow to one repository and a master template builds the final report.', '%', 100);
 
   document.getElementById('sec4').innerHTML =
     slider('redClin', 'Clinician paperwork removed', 'Share of scoring, transcription and write-up time CogTrack removes. Best set from a timed sample with the clinicians, not an estimate.', '%', 100) +
-    slider('sell', 'Freed clinician hours sold as extra patients', 'Only counts if there is unmet demand: a waitlist or unfilled calendar. Set to zero if slots are already full of patients and no more are waiting.', '%', 100) +
+    slider('sell', 'Freed clinician hours sold as extra clients', 'Only counts if there is unmet demand: a waitlist or unfilled calendar. Set to zero if slots are already full of clients and no more are waiting.', '%', 100) +
     slider('costClin', 'Freed clinician hours that cut paid hours', 'Overtime, locum cover or a hire avoided. The remainder of freed hours is absorbed and earns nothing in this model.', '%', 100) +
     slider('costAdmin', 'Freed admin hours that cut paid hours', 'Same test for administrative time.', '%', 100) +
-    numField('billHrs', 'Clinician hours to treat one patient, all clinicians', 'Used to convert freed hours into extra patients.') +
     slider('margin', 'Contribution margin on extra revenue', 'Share of each extra dirham left after direct costs such as consumables, equipment time and imaging.', '%', 100);
 
   document.getElementById('sec5').innerHTML =
-    slider('uplift', 'Extra patients returning for follow-up testing', 'Percentage points added to the share of patients who come back within a year, because tracking over time is now easy to show.', ' pts', 40) +
+    slider('uplift', 'Extra clients returning for follow-up testing', 'Percentage points added to the share of clients who come back within a year, because tracking over time is now easy to show.', ' pts', 40) +
     slider('fuFee', 'Follow-up fee as share of full fee', 'A follow-up is usually cheaper than the first assessment.', '%', 100) +
     numField('contracts', 'New group contracts won per year', 'Teams, clubs or companies won because the consolidated report is faster and cleaner. Zero is a fair default.') +
-    numField('contractPts', 'Patients per contract', 'Applied at the corporate fee.');
+    numField('contractPts', 'Clients per contract', 'Applied at the corporate fee.');
 
   document.getElementById('sec6').innerHTML =
     numField('fee', 'CogTrack monthly fee after pilot, AED', 'Zero for a barter arrangement.') +
@@ -424,12 +432,17 @@
 
   // Push state into controls
   function syncControls() {
-    document.querySelectorAll('[data-p]').forEach(function (el) {
-      var k = el.getAttribute('data-p');
-      el.value = S.p[k];
-    });
+    P_KEYS.forEach(function (k) { syncKey(k, null); });
     document.querySelectorAll('[data-path]').forEach(function (el) {
       el.value = getPath(el.getAttribute('data-path'));
+    });
+  }
+
+  function syncKey(k, skip) {
+    document.querySelectorAll('[data-p="' + k + '"]').forEach(function (el) {
+      var isRange = el.hasAttribute('data-range');
+      if (el !== skip) el.value = (isRange && S.p[k] === '') ? 0 : S.p[k];
+      if (isRange) el.classList.toggle('unset', S.p[k] === '');
     });
   }
 
@@ -446,12 +459,17 @@
   // Model
   function compute() {
     var p = S.p, i, j;
-    var vol = 0, revSum = 0, compileMin = 0;
+    var vol = 0, revSum = 0, compileMin = 0, capVol = 0, capRev = 0, capHrs = 0;
     for (i = 0; i < S.seg.length; i++) {
       var sv = num(S.seg[i].vol), sf = num(S.seg[i].fee);
       vol += sv;
       revSum += sv * sf;
       compileMin += sv * num(S.seg[i].compile);
+      if (sv > 0 && num(S.seg[i].clin) > 0) {
+        capVol += sv;
+        capRev += sv * sf;
+        capHrs += sv * num(S.seg[i].clin) / 60;
+      }
     }
     var avgFee = vol > 0 ? revSum / vol : 0;
 
@@ -476,8 +494,10 @@
 
     var costClinSaved = freedClinCost * cut;
     var soldHrs = freedClinHrs * sell;
-    var extraPts = num(p.billHrs) > 0 ? soldHrs / num(p.billHrs) : 0;
-    var grossCap = extraPts * avgFee;
+    var hrsPerClient = capVol > 0 ? capHrs / capVol : 0;
+    var capFee = capVol > 0 ? capRev / capVol : 0;
+    var extraPts = hrsPerClient > 0 ? soldHrs / hrsPerClient : 0;
+    var grossCap = extraPts * capFee;
     var margin = Math.min(num(p.margin), 100) / 100;
 
     var adminMin = compileMin + vol * num(p.dupIntake);
@@ -522,7 +542,7 @@
     if (!hasData) {
       ['rNet', 'rCost', 'rCap', 'rGrow', 'rHc', 'rHa', 'rXp', 'rGross', 'rFee', 'rPay'].forEach(function (id) { el(id).textContent = '-'; });
       ['bCost', 'bCap', 'bGrow'].forEach(function (id) { el(id).style.width = '0'; });
-      el('rNetNote').textContent = 'Enter patients per month and a fee for at least one service line to see results.';
+      el('rNetNote').textContent = 'Enter clients per month and a fee for at least one service line to see results.';
       return;
     }
     el('rNet').textContent = aed(r.net);
@@ -553,7 +573,11 @@
     var p = t.getAttribute && t.getAttribute('data-p');
     var path = t.getAttribute && t.getAttribute('data-path');
     if (p) {
-      S.p[p] = t.value === '' ? '' : num(t.value);
+      var v = t.value === '' ? '' : num(t.value);
+      var mx = parseFloat(t.getAttribute('max'));
+      if (v !== '' && isFinite(mx) && v > mx) { v = mx; t.value = mx; }
+      S.p[p] = v;
+      syncKey(p, t);
     } else if (path) {
       setPath(path, t.value === '' ? '' : num(t.value));
     } else { return; }
